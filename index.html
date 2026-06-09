@@ -124,6 +124,20 @@
             z-index: 0;
             opacity: 0.8;
         }
+
+        /* Transiciones SPA */
+        .spa-view {
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .spa-view.hidden-view {
+            opacity: 0;
+            transform: translateY(15px);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+            overflow: hidden;
+            height: 0;
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-yellow-500/30 selection:text-yellow-200 relative overflow-x-hidden">
@@ -132,693 +146,616 @@
     <canvas id="dataNetworkCanvas"></canvas>
 
     <!-- Orbes Ambientales Dinámicos -->
-    <div id="orb1" class="ambient-orb w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-yellow-500/10 top-[-100px] left-[-100px]"></div>
-    <div id="orb2" class="ambient-orb w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-red-600/5 top-[40%] right-[-100px]"></div>
-    <div id="orb3" class="ambient-orb w-[200px] h-[200px] md:w-[450px] md:h-[450px] bg-yellow-600/5 bottom-[10%] left-[10%]"></div>
+    <div id="orb1" class="ambient-orb w-[600px] h-[600px] bg-yellow-500/10 top-[-100px] left-[-100px]"></div>
+    <div id="orb2" class="ambient-orb w-[500px] h-[500px] bg-red-600/5 top-[40%] right-[-100px]"></div>
+    <div id="orb3" class="ambient-orb w-[450px] h-[450px] bg-yellow-600/5 bottom-[10%] left-[10%]"></div>
 
     <!-- Navegación Fija Glassmorphic -->
     <nav class="fixed w-full z-50 glass-panel !rounded-none !border-t-0 !border-l-0 !border-r-0 border-b border-white/10 px-6 py-4 flex justify-between items-center">
         <div class="flex items-center space-x-3">
-            <span class="text-xl md:text-2xl font-black tracking-widest text-white">QANTICA<span class="text-yellow-500">.</span></span>
+            <span onclick="navigateTo('home')" class="text-2xl font-black tracking-widest text-white cursor-pointer select-none">QANTICA<span class="text-yellow-500">.</span></span>
         </div>
         <div class="hidden lg:flex space-x-8 text-xs font-semibold tracking-wider text-gray-400">
-            <a href="#hero" class="hover:text-white transition-colors">HOME</a>
-            <a href="#platform" class="hover:text-white transition-colors">THE PLATFORM</a>
-            <a href="#market" class="hover:text-white transition-colors">THE MARKET</a>
-            <a href="#investors" class="hover:text-white transition-colors">INVESTORS</a>
-            <a href="#dataroom" class="text-yellow-500 font-bold flex items-center gap-1.5"><i class="ph-fill ph-shield-check"></i> SECURE ACCESS</a>
+            <button onclick="navigateTo('home')" id="nav-home" class="hover:text-white transition-colors uppercase font-bold text-white">HOME</button>
+            <button onclick="navigateTo('platform')" id="nav-platform" class="hover:text-white transition-colors uppercase font-bold">THE PLATFORM</button>
+            <button onclick="navigateTo('market')" id="nav-market" class="hover:text-white transition-colors uppercase font-bold">THE MARKET</button>
+            <button onclick="navigateTo('investors')" id="nav-investors" class="hover:text-white transition-colors uppercase font-bold">INVESTORS</button>
+            <button onclick="openModal('accessModal')" class="text-yellow-500 font-bold flex items-center gap-1.5"><i class="ph-fill ph-shield-check"></i> SECURE ACCESS</button>
         </div>
         <div class="flex items-center space-x-3">
-            <button onclick="openModal('accessModal')" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 px-4 py-2 md:px-5 md:py-2 rounded-full text-[10px] md:text-xs font-bold hover:bg-yellow-500 hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:shadow-[0_0_25px_rgba(250,204,21,0.5)]">
+            <button onclick="openModal('accessModal')" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 px-5 py-2 rounded-full text-xs font-bold hover:bg-yellow-500 hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:shadow-[0_0_25px_rgba(250,204,21,0.5)]">
                 Access Data Room
             </button>
         </div>
     </nav>
 
-    <!-- 1. HOME / HERO SECTION -->
-    <section id="hero" class="min-h-[85vh] flex flex-col justify-center items-center text-center space-y-12 md:space-y-16 relative z-10 max-w-7xl mx-auto px-6 pt-36 md:pt-44">
-        <div class="space-y-6 md:space-y-8 max-w-5xl">
-            <h1 class="text-4xl sm:text-6xl md:text-8xl font-extrabold tracking-tight leading-[1.1] px-2">
-                The Infrastructure Layer for <br>
-                <span class="text-gradient">Entertainment IP</span>
-            </h1>
-            <p class="text-base sm:text-lg md:text-xl text-gray-400 font-light max-w-3xl mx-auto leading-relaxed px-4">
-                We transform raw stories into market ready IP through analysis, development, audience intelligence and commercialization.
-            </p>
-        </div>
+    <!-- Contenedor Principal de Vistas SPA -->
+    <div class="relative w-full min-h-screen">
 
-        <!-- Botones Interactivos de Acción -->
-        <div class="flex flex-col sm:flex-row gap-4 md:gap-5 justify-center items-center w-full max-w-md px-4">
-            <button onclick="openModal('deckModal')" class="w-full sm:w-1/2 px-6 py-4 rounded-xl font-bold bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(250,204,21,0.4)] text-xs md:text-sm">
-                <i class="ph-fill ph-presentation"></i> View Deck
-            </button>
-            <button onclick="openModal('accessModal')" class="w-full sm:w-1/2 px-6 py-4 rounded-xl font-bold border border-white/20 hover:border-yellow-500/50 hover:bg-yellow-500/10 text-white transition-all duration-300 flex items-center justify-center gap-2 glass-panel text-xs md:text-sm">
-                <i class="ph-fill ph-lock-key"></i> Access Data Room
-            </button>
-        </div>
-    </section>
-
-    <!-- PÁGINA 2: SECCIÓN DE VIDEO (Centrada estrictamente a 1906 x 942) -->
-    <section class="relative w-full max-w-[1906px] mx-auto px-4 sm:px-6 py-12 md:py-20 z-10 reveal-on-scroll flex justify-center items-center">
-        <!-- El contenedor mantiene de manera idéntica la proporción solicitada de forma adaptativa y perfectamente centrada -->
-        <div class="relative w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] bg-black" style="aspect-ratio: 1906 / 942; max-width: 1906px;">
-            <video id="teaserVideo" class="absolute inset-0 w-full h-full object-cover opacity-100" autoplay loop muted playsinline>
-                <source src="VIDEO1.mp4" type="video/mp4">
-                Tu navegador no soporta el formato de video.
-            </video>
+        <!-- ==================== VISTA 1: HOME ==================== -->
+        <div id="view-home" class="spa-view max-w-7xl mx-auto px-6 pt-36 pb-24 space-y-48">
             
-            <!-- Sutiles gradientes de integración en los bordes -->
-            <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/30 via-transparent to-[#050505]/30 pointer-events-none z-10"></div>
-        </div>
-    </section>
-
-    <!-- CONTENEDOR CENTRALIZADO CON MÁS AIRE -->
-    <main class="max-w-7xl mx-auto px-6 space-y-36 md:space-y-52 relative z-10 w-full flex flex-col items-center">
-
-        <!-- 2. THE INDUSTRY IS BROKEN -->
-        <section class="reveal-on-scroll relative w-full pt-8">
-            <div class="glass-panel p-6 md:p-14 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-80 h-80 bg-red-500/10 blur-[90px] rounded-full pointer-events-none"></div>
-                
-                <div class="grid lg:grid-cols-12 gap-8 items-center">
-                    <div class="lg:col-span-7 space-y-6">
-                        <div class="inline-flex items-center gap-2 text-red-400 font-semibold tracking-wider text-sm uppercase">
-                            <i class="ph ph-warning-octagon"></i> Critical Inefficiency
-                        </div>
-                        <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">
-                            THE INDUSTRY IS <span class="text-red-400 uppercase">BROKEN</span>
-                        </h2>
-                        <div class="space-y-4 text-gray-400 text-sm md:text-lg leading-relaxed">
-                            <p>
-                                Every year, thousands of stories enter development. 
-                                <strong class="text-white font-semibold">Most never become valuable IP.</strong>
-                            </p>
-                            <p>
-                                Studios and platforms spend millions evaluating, refining and de-risking projects <strong class="text-yellow-500 font-semibold">after</strong> development has already begun.
-                            </p>
-                            <p class="text-xs md:text-sm font-semibold text-yellow-500 uppercase tracking-widest mt-4">
-                                Qantica moves that process upstream. Better stories. Lower risk. Higher value.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Visualización del Flujo de Valor y Transición del Modelo de Desarrollo -->
-                    <div class="lg:col-span-5 flex flex-col justify-center items-center w-full">
-                        <div class="w-full max-w-sm glass-panel p-5 md:p-6 border-red-500/20 text-center relative hover:scale-105 transition-transform duration-500">
-                            <span class="text-[10px] md:text-xs text-red-400 font-bold uppercase tracking-wider block mb-3">TRADITIONAL IP DEVELOPMENT</span>
-                            <p class="text-[11px] md:text-xs text-gray-400 leading-relaxed px-2">
-                                Ideas evolve through multiple stages before receiving meaningful market intelligence.
-                            </p>
-                            
-                            <!-- Arrow connector pointing down -->
-                            <div class="my-4 flex justify-center items-center text-yellow-500 animate-bounce">
-                                <i class="ph-bold ph-arrow-down text-base"></i>
-                            </div>
-
-                            <span class="text-[10px] md:text-xs text-yellow-500 font-bold uppercase tracking-wider block mb-2">QANTICA</span>
-                            <p class="text-[11px] md:text-xs text-white font-semibold">
-                                Validation starts from day one.
-                            </p>
-                        </div>
-                        
-                        <div class="w-full max-w-sm glass-panel p-5 md:p-6 border-yellow-500/30 text-center mt-6 relative hover:scale-105 transition-transform duration-500">
-                            <div class="absolute inset-0 bg-yellow-500/5 pointer-events-none"></div>
-                            <span class="text-[10px] md:text-xs text-yellow-500 font-bold uppercase tracking-wider block mb-4">Where Qantica Creates Value</span>
-                            
-                            <!-- Visual mapping: CREATORS -> QANTICA -> STUDIOS -->
-                            <div class="flex justify-between items-center gap-1 md:gap-2 my-6 px-1">
-                                <div class="flex flex-col items-center">
-                                    <span class="px-2 py-1 bg-white/5 border border-white/10 text-[9px] font-bold rounded tracking-wider text-gray-300 uppercase">Creators</span>
-                                </div>
-                                <div class="flex-1 flex items-center justify-center relative min-w-[16px]">
-                                    <div class="h-[1px] w-full bg-gradient-to-r from-gray-500 to-yellow-500 relative">
-                                        <div class="absolute right-0 top-1/2 -translate-y-1/2 border-y-4 border-y-transparent border-l-4 border-l-yellow-500"></div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-center">
-                                    <span class="px-2 py-1 bg-yellow-500 text-black text-[9px] font-black rounded tracking-widest uppercase shadow-[0_0_10px_rgba(250,204,21,0.3)]">Qantica</span>
-                                </div>
-                                <div class="flex-1 flex items-center justify-center relative min-w-[16px]">
-                                    <div class="h-[1px] w-full bg-gradient-to-r from-yellow-500 to-gray-500 relative">
-                                        <div class="absolute right-0 top-1/2 -translate-y-1/2 border-y-4 border-y-transparent border-l-4 border-l-gray-500"></div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-center">
-                                    <span class="px-2 py-1 bg-[#111113] border border-white/10 text-[9px] font-bold rounded tracking-wider text-gray-400 uppercase">Studios</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Desglose de Valor Añadido -->
-                            <div class="space-y-2 text-left bg-black/40 p-4 rounded-xl border border-white/5">
-                                <div class="flex items-center gap-2.5 text-xs text-gray-300">
-                                    <span class="text-yellow-500 font-extrabold text-sm">+</span>
-                                    <span class="font-medium">Analysis</span>
-                                </div>
-                                <div class="flex items-center gap-2.5 text-xs text-gray-300">
-                                    <span class="text-yellow-500 font-extrabold text-sm">+</span>
-                                    <span class="font-medium">Audience Intelligence</span>
-                                </div>
-                                <div class="flex items-center gap-2.5 text-xs text-gray-300">
-                                    <span class="text-yellow-500 font-extrabold text-sm">+</span>
-                                    <span class="font-medium">IP Expansion</span>
-                                </div>
-                                <div class="flex items-center gap-2.5 text-xs text-gray-300">
-                                    <span class="text-yellow-500 font-extrabold text-sm">+</span>
-                                    <span class="font-medium">Commercial Validation</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. FROM SCREENPLAY TO MARKET READY IP -->
-        <section class="space-y-12 reveal-on-scroll w-full">
-            <div class="text-center space-y-3">
-                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">
-                    From Screenplay to <span class="text-gradient">Market Ready IP</span>
-                </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
-                    Qantica transforms raw stories into investable entertainment assets through three connected stages. Explore the pipeline sequentially below:
-                </p>
-            </div>
-
-            <!-- Widget Interactivo de Pipeline Conectado -->
-            <div class="glass-panel p-5 md:p-8 relative overflow-hidden">
-                
-                <!-- Barra de Progreso Conectora Principal -->
-                <div class="relative w-full mb-8 px-4">
-                    <div class="pipeline-progress-bar rounded-full" id="pipelineLine"></div>
-                    <div class="pipeline-glow-connector" id="pipelineGlowLine"></div>
+            <!-- 1. HOME / HERO SECTION (Con más aire/separación vertical) -->
+            <section id="hero" class="min-h-[75vh] flex flex-col justify-center items-center text-center space-y-16 relative z-10 max-w-7xl mx-auto pt-16">
+                <div class="space-y-8 max-w-5xl">
+                    <h1 class="text-5xl md:text-8xl font-extrabold tracking-tight leading-[1.1] px-2">
+                        The Infrastructure Layer for <br>
+                        <span class="text-gradient">Entertainment IP</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-400 font-light max-w-3xl mx-auto leading-relaxed px-4">
+                        We transform raw stories into market ready IP through analysis, development, audience intelligence and commercialization.
+                    </p>
                 </div>
 
-                <div class="grid lg:grid-cols-3 gap-6 relative z-10" id="pipelineContainer">
+                <!-- Botones Interactivos de Acción (View Deck en Amarillo Resaltado) -->
+                <div class="flex flex-col sm:flex-row gap-5 justify-center items-center w-full max-w-md px-4">
+                    <button onclick="openModal('deckModal')" class="w-full sm:w-1/2 px-6 py-4 rounded-xl font-bold bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(250,204,21,0.4)] text-sm">
+                        <i class="ph-fill ph-presentation"></i> View Deck
+                    </button>
+                    <button onclick="openModal('accessModal')" class="w-full sm:w-1/2 px-6 py-4 rounded-xl font-bold border border-white/20 hover:border-yellow-500/50 hover:bg-yellow-500/10 text-white transition-all duration-300 flex items-center justify-center gap-2 glass-panel text-sm">
+                        <i class="ph-fill ph-lock-key"></i> Access Data Room
+                    </button>
+                </div>
+            </section>
+
+            <!-- PÁGINA 2: SECCIÓN DE VIDEO (Centrada estrictamente a 1906 x 942) -->
+            <section class="relative w-full max-w-[1906px] mx-auto py-12 z-10 reveal-on-scroll flex justify-center items-center">
+                <!-- El contenedor mantiene de manera idéntica la proporción solicitada de forma adaptativa y perfectamente centrada -->
+                <div class="relative w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] bg-black" style="aspect-ratio: 1906 / 942; max-width: 1906px;">
+                    <video id="teaserVideo" class="absolute inset-0 w-full h-full object-cover opacity-100" autoplay loop muted playsinline>
+                        <source src="VIDEO1.mp4" type="video/mp4">
+                        Tu navegador no soporta el formato de video.
+                    </video>
                     
-                    <!-- Fase 1 -->
-                    <div onclick="selectPipelineStage(1)" class="pipeline-card cursor-pointer glass-panel p-5 md:p-6 border-yellow-500/30 bg-yellow-500/5 transition-all duration-300 flex flex-col justify-between h-64 active-stage" id="stageCard-1">
-                        <div>
-                            <div class="flex justify-between items-center mb-6">
-                                <span class="text-2xl md:text-3xl font-extrabold text-yellow-500">01</span>
-                                <span class="text-[9px] md:text-[10px] tracking-widest bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-bold uppercase">Phase I</span>
-                            </div>
-                            <h3 class="text-lg md:text-xl font-bold mb-2">Development & IP Expansion</h3>
-                            <p class="text-xs text-gray-400">We strengthen the project and unlock its film, series and gaming potential from the raw format.</p>
-                        </div>
-                        <div class="flex items-center space-x-2 text-xs text-yellow-500 font-bold pt-4" id="btnExplore-1">
-                            <span>ACTIVE STAGE</span> <i class="ph ph-circle-wavy-check-fill animate-pulse"></i>
-                        </div>
-                    </div>
-
-                    <!-- Fase 2 -->
-                    <div onclick="selectPipelineStage(2)" class="pipeline-card cursor-pointer glass-panel p-5 md:p-6 border-white/5 opacity-50 transition-all duration-300 flex flex-col justify-between h-64" id="stageCard-2">
-                        <div>
-                            <div class="flex justify-between items-center mb-6">
-                                <span class="text-2xl md:text-3xl font-extrabold text-gray-500" id="num-2">02</span>
-                                <span class="text-[9px] md:text-[10px] tracking-widest bg-white/10 text-gray-400 px-2 py-1 rounded font-bold uppercase">Phase II</span>
-                            </div>
-                            <h3 class="text-lg md:text-xl font-bold mb-2">Market Intelligence</h3>
-                            <p class="text-xs text-gray-400">We identify its exact audience profile, scale potential and historical data matches before pitch.</p>
-                        </div>
-                        <div class="flex items-center space-x-2 text-xs text-gray-400 font-bold pt-4" id="btnExplore-2">
-                            <span>CLICK TO UNLOCK</span> <i class="ph ph-lock-key"></i>
-                        </div>
-                    </div>
-
-                    <!-- Fase 3 -->
-                    <div onclick="selectPipelineStage(3)" class="pipeline-card cursor-pointer glass-panel p-5 md:p-6 border-white/5 opacity-50 transition-all duration-300 flex flex-col justify-between h-64" id="stageCard-3">
-                        <div>
-                            <div class="flex justify-between items-center mb-6">
-                                <span class="text-2xl md:text-3xl font-extrabold text-gray-500" id="num-3">03</span>
-                                <span class="text-[9px] md:text-[10px] tracking-widest bg-white/10 text-gray-400 px-2 py-1 rounded font-bold uppercase">Phase III</span>
-                            </div>
-                            <h3 class="text-lg md:text-xl font-bold mb-2">Commercialization</h3>
-                            <p class="text-xs text-gray-400">We package the validated IP and connect it structurally with active corporate industry buyers.</p>
-                        </div>
-                        <div class="flex items-center space-x-2 text-xs text-gray-400 font-bold pt-4" id="btnExplore-3">
-                            <span>CLICK TO UNLOCK</span> <i class="ph ph-lock-key"></i>
-                        </div>
-                    </div>
-
+                    <!-- Sutiles gradientes de integración en los bordes -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/30 via-transparent to-[#050505]/30 pointer-events-none z-10"></div>
                 </div>
+            </section>
 
-                <!-- Consola Interactiva del Simulador de Pipeline -->
-                <div class="mt-8 p-5 md:p-6 bg-[#09090b]/80 border border-white/5 rounded-xl">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/5 pb-4 mb-4">
-                        <div>
-                            <h4 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block animate-ping"></span>
-                                IP PIPELINE LIVE CONSOLE: <span id="activeStageTitle" class="text-yellow-500 font-semibold">Development & IP Expansion</span>
-                            </h4>
-                            <p class="text-[10px] md:text-xs text-gray-400">Simulate autonomous scale and target evaluation in real-time.</p>
-                        </div>
-                        <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                            <button onclick="nextStep()" id="nextStepBtn" class="flex-1 md:flex-initial bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1">
-                                Next Phase <i class="ph ph-arrow-right"></i>
-                            </button>
-                            <button onclick="runSimulation()" class="flex-1 md:flex-initial bg-yellow-500 text-black px-4 py-2 rounded-lg text-xs font-bold hover:bg-yellow-400 transition-colors flex items-center justify-center gap-1 shadow-[0_0_15px_rgba(250,204,21,0.3)]">
-                                <i class="ph ph-play"></i> Run Screenplay Scan
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="grid md:grid-cols-3 gap-4" id="consoleDetails">
-                        <div class="p-4 bg-white/5 rounded-lg border border-white/5">
-                            <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Process Status</span>
-                            <p class="text-sm md:text-base font-semibold text-white mt-1" id="simStatus">Standing By</p>
-                        </div>
-                        <div class="p-4 bg-white/5 rounded-lg border border-white/5">
-                            <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Estimated Greenlight Score</span>
-                            <p class="text-base md:text-lg font-black text-yellow-500 mt-1" id="simScore">--</p>
-                        </div>
-                        <div class="p-4 bg-white/5 rounded-lg border border-white/5">
-                            <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Analysis Connection</span>
-                            <div class="w-full bg-black h-2 rounded-full mt-3 overflow-hidden">
-                                <div id="simProgress" class="bg-yellow-500 h-full w-0 transition-all duration-1000"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <p class="text-center text-xs md:text-sm font-semibold tracking-widest text-gray-500 uppercase mt-8">
-                    Turning creative ideas into scalable IP. One infrastructure. One pipeline. One destination.
-                </p>
-            </div>
-        </section>
-
-        <!-- 4. WHY IT MATTERS + ECOSYSTEM -->
-        <section class="grid lg:grid-cols-12 gap-8 reveal-on-scroll w-full">
-            
-            <!-- Left Side: Why It Matters List -->
-            <div class="lg:col-span-5 flex flex-col justify-between space-y-8">
-                <div>
-                    <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 flex-none">
-                        Why It <span class="text-gradient">Matters</span>
-                    </h2>
-                    <p class="text-gray-400 leading-relaxed text-sm md:text-base">
-                        By integrating a structural layer upstream, Qantica resolves the foundational friction point in global creative IP development.
-                    </p>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="glass-panel p-5 md:p-6 flex gap-4 items-start hover:border-yellow-500/20 transition-all duration-300">
-                        <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
-                            <i class="ph-fill ph-shield-check text-2xl"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-extrabold text-white text-base md:text-lg">01 Reduce Risk</h4>
-                            <p class="text-xs md:text-sm text-gray-400 mt-1">Projects arrive thoroughly validated and refined before studio or platform acquisition.</p>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel p-5 md:p-6 flex gap-4 items-start hover:border-yellow-500/20 transition-all duration-300">
-                        <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
-                            <i class="ph-fill ph-chart-line-up text-2xl"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-extrabold text-white text-base md:text-lg">02 Increase Scale</h4>
-                            <p class="text-xs md:text-sm text-gray-400 mt-1">Thousands of complex narrative structures and scripts can be evaluated simultaneously.</p>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel p-5 md:p-6 flex gap-4 items-start hover:border-yellow-500/20 transition-all duration-300">
-                        <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
-                            <i class="ph-fill ph-cube text-2xl"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-extrabold text-white text-base md:text-lg">03 Create New Assets</h4>
-                            <p class="text-xs md:text-sm text-gray-400 mt-1">Unlocks multi-format potential across film, series, gaming, transmedia and merchandising.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Side: Ecosystem Diagram -->
-            <div class="lg:col-span-7 glass-panel p-6 md:p-8 flex flex-col justify-between relative overflow-hidden w-full">
-                <div>
-                    <span class="text-xs text-yellow-500 font-bold uppercase tracking-widest block mb-2">Connecting the Value Chain</span>
-                    <h3 class="text-xl md:text-2xl font-bold mb-4">The Qantica Ecosystem</h3>
-                    <p class="text-xs md:text-sm text-gray-400">
-                        We sit structurally between Creation and Acquisition, acting as the intelligent router that aligns raw materials with market requirements.
-                    </p>
-                </div>
-
-                <!-- Interactive SVG Node Map -->
-                <div class="my-8 relative h-64 border border-white/5 bg-black/40 rounded-xl flex items-center justify-center overflow-hidden">
-                    
-                    <svg class="absolute inset-0 w-full h-full hidden sm:block" id="svgConnectorLines">
-                        <path d="M 50 128 C 150 128, 200 128, 300 128" stroke="rgba(250, 204, 21, 0.2)" stroke-width="2" fill="none" id="pathCreation"/>
-                        <path d="M 300 128 C 400 128, 450 128, 550 128" stroke="rgba(250, 204, 21, 0.2)" stroke-width="2" fill="none" id="pathAcquisition"/>
-                    </svg>
-
-                    <!-- Left: Creation -->
-                    <div class="absolute left-2 sm:left-6 text-center z-10 scale-90 sm:scale-100">
-                        <div onclick="pulseEcosystemData('creation')" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#111113] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-yellow-500/50 cursor-pointer transition-all duration-300 mx-auto">
-                            <i class="ph ph-pencil-line text-xl sm:text-2xl"></i>
-                        </div>
-                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 block mt-2 uppercase tracking-widest">CREATION</span>
-                        <span class="text-[8px] sm:text-[9px] text-gray-500 block">Writers & Creators</span>
-                    </div>
-
-                    <!-- Center: Qantica Node -->
-                    <div class="absolute text-center z-10 scale-90 sm:scale-100">
-                        <div onclick="pulseEcosystemData('center')" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#1a1a1e] to-[#050505] border-2 border-yellow-500 flex items-center justify-center cursor-pointer shadow-[0_0_30px_rgba(250,204,21,0.2)] active-pulse mx-auto">
-                            <span class="text-yellow-500 font-extrabold text-[10px] sm:text-xs tracking-wider">QANTICA</span>
-                        </div>
-                        <span class="text-[8px] sm:text-[10px] text-yellow-500 font-bold block mt-2 tracking-widest uppercase">Intelligence</span>
-                    </div>
-
-                    <!-- Right: Acquisition -->
-                    <div class="absolute right-2 sm:right-6 text-center z-10 scale-90 sm:scale-100">
-                        <div onclick="pulseEcosystemData('acquisition')" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#111113] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-yellow-500/50 cursor-pointer transition-all duration-300 mx-auto">
-                            <i class="ph ph-handshake text-xl sm:text-2xl"></i>
-                        </div>
-                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 block mt-2 uppercase tracking-widest">ACQUISITION</span>
-                        <span class="text-[8px] sm:text-[9px] text-gray-500 block">Studios & Buyers</span>
-                    </div>
-
-                    <div class="absolute bottom-2 text-center">
-                        <span class="text-[8px] sm:text-[9px] text-gray-500 tracking-wider uppercase">Click nodes to dispatch signals</span>
-                    </div>
-                </div>
-
-                <div class="p-4 bg-white/5 rounded-xl border border-white/5 text-center">
-                    <p class="text-xs text-gray-400">
-                        We connect writers, audiences and industry to build highly optimized entertainment intellectual properties.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 5. THE PLATFORM -->
-        <section id="platform" class="space-y-12 reveal-on-scroll w-full">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                
-                <div class="space-y-6">
-                    <div class="inline-flex items-center gap-2 text-yellow-500 font-semibold tracking-wider text-sm uppercase">
-                        <i class="ph ph-cpu"></i> Advanced Infrastructure
-                    </div>
+            <!-- 2. FROM SCREENPLAY TO MARKET READY IP (Pipeline) -->
+            <section class="space-y-12 reveal-on-scroll w-full">
+                <div class="text-center space-y-3">
                     <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">
-                        Innovation <br>at <span class="text-gradient">Scale</span>
+                        From Screenplay to <span class="text-gradient">Market Ready IP</span>
                     </h2>
-                    <p class="text-gray-400 leading-relaxed text-sm md:text-lg">
-                        A technological breakthrough that amplifies storytelling capabilities without ever compromising the artistic vision. We align raw data insights with pure creative discovery.
+                    <p class="text-gray-400 max-w-2xl mx-auto">
+                        Qantica transforms raw stories into investable entertainment assets through three connected stages. Explore the pipeline sequentially below:
                     </p>
+                </div>
 
-                    <div class="border-l-2 border-yellow-500/30 pl-4 md:pl-6 space-y-4">
-                        <p class="text-[10px] md:text-xs text-gray-400 font-medium tracking-widest uppercase">Key Infrastructure Objectives</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="glass-panel p-4 text-center">
-                                <span class="text-yellow-500 text-sm md:text-base font-bold block uppercase tracking-wider">Evaluation</span>
-                                <span class="text-[9px] md:text-[10px] text-gray-500 font-bold block mt-1 uppercase">Faster Assessment</span>
+                <!-- Widget Interactivo de Pipeline Conectado -->
+                <div class="glass-panel p-8 relative overflow-hidden">
+                    
+                    <!-- Barra de Progreso Conectora Principal -->
+                    <div class="relative w-full mb-8 px-4">
+                        <div class="pipeline-progress-bar rounded-full" id="pipelineLine"></div>
+                        <div class="pipeline-glow-connector" id="pipelineGlowLine"></div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-8 relative z-10" id="pipelineContainer">
+                        
+                        <!-- Fase 1 -->
+                        <div onclick="selectPipelineStage(1)" class="pipeline-card cursor-pointer glass-panel p-6 border-yellow-500/30 bg-yellow-500/5 transition-all duration-300 flex flex-col justify-between h-64 active-stage" id="stageCard-1">
+                            <div>
+                                <div class="flex justify-between items-center mb-6">
+                                    <span class="text-3xl font-extrabold text-yellow-500">01</span>
+                                    <span class="text-[10px] tracking-widest bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-bold uppercase">Phase I</span>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2">Development & IP Expansion</h3>
+                                <p class="text-xs text-gray-400">We strengthen the project and unlock its film, series and gaming potential from the raw format.</p>
                             </div>
-                            <div class="glass-panel p-4 text-center">
-                                <span class="text-yellow-500 text-sm md:text-base font-bold block uppercase tracking-wider">Intelligence</span>
-                                <span class="text-[9px] md:text-[10px] text-gray-500 font-bold block mt-1 uppercase">Audience Insights</span>
+                            <div class="flex items-center space-x-2 text-xs text-yellow-500 font-bold pt-4" id="btnExplore-1">
+                                <span>ACTIVE STAGE</span> <i class="ph ph-circle-wavy-check-fill animate-pulse"></i>
                             </div>
-                            <div class="glass-panel p-4 text-center">
-                                <span class="text-yellow-500 text-sm md:text-base font-bold block uppercase tracking-wider">Validation</span>
-                                <span class="text-[9px] md:text-[10px] text-gray-500 font-bold block mt-1 uppercase">Commercial Fit</span>
+                        </div>
+
+                        <!-- Fase 2 -->
+                        <div onclick="selectPipelineStage(2)" class="pipeline-card cursor-pointer glass-panel p-6 border-white/5 opacity-50 transition-all duration-300 flex flex-col justify-between h-64" id="stageCard-2">
+                            <div>
+                                <div class="flex justify-between items-center mb-6">
+                                    <span class="text-3xl font-extrabold text-gray-500" id="num-2">02</span>
+                                    <span class="text-[10px] tracking-widest bg-white/10 text-gray-400 px-2 py-1 rounded font-bold uppercase">Phase II</span>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2">Market Intelligence</h3>
+                                <p class="text-xs text-gray-400">We identify its exact audience profile, scale potential and historical data matches before pitch.</p>
+                            </div>
+                            <div class="flex items-center space-x-2 text-xs text-gray-400 font-bold pt-4" id="btnExplore-2">
+                                <span>CLICK TO UNLOCK</span> <i class="ph ph-lock-key"></i>
+                            </div>
+                        </div>
+
+                        <!-- Fase 3 -->
+                        <div onclick="selectPipelineStage(3)" class="pipeline-card cursor-pointer glass-panel p-6 border-white/5 opacity-50 transition-all duration-300 flex flex-col justify-between h-64" id="stageCard-3">
+                            <div>
+                                <div class="flex justify-between items-center mb-6">
+                                    <span class="text-3xl font-extrabold text-gray-500" id="num-3">03</span>
+                                    <span class="text-[10px] tracking-widest bg-white/10 text-gray-400 px-2 py-1 rounded font-bold uppercase">Phase III</span>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2">Commercialization</h3>
+                                <p class="text-xs text-gray-400">We package the validated IP and connect it structurally with active corporate industry buyers.</p>
+                            </div>
+                            <div class="flex items-center space-x-2 text-xs text-gray-400 font-bold pt-4" id="btnExplore-3">
+                                <span>CLICK TO UNLOCK</span> <i class="ph ph-lock-key"></i>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Consola Interactiva del Simulador de Pipeline -->
+                    <div class="mt-8 p-6 bg-[#09090b]/80 border border-white/5 rounded-xl">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/5 pb-4 mb-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block animate-ping"></span>
+                                    IP PIPELINE LIVE CONSOLE: <span id="activeStageTitle" class="text-yellow-500 font-semibold">Development & IP Expansion</span>
+                                </h4>
+                                <p class="text-xs text-gray-400">Simulate autonomous scale and target evaluation in real-time.</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="nextStep()" id="nextStepBtn" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                                    Next Phase <i class="ph ph-arrow-right"></i>
+                                </button>
+                                <button onclick="runSimulation()" class="bg-yellow-500 text-black px-4 py-2 rounded-lg text-xs font-bold hover:bg-yellow-400 transition-colors flex items-center gap-1 shadow-[0_0_15px_rgba(250,204,21,0.3)]">
+                                    <i class="ph ph-play"></i> Run Screenplay Scan
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-3 gap-4" id="consoleDetails">
+                            <div class="p-4 bg-white/5 rounded-lg border border-white/5">
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Process Status</span>
+                                <p class="text-base font-semibold text-white mt-1" id="simStatus">Standing By</p>
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-lg border border-white/5">
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Estimated Greenlight Score</span>
+                                <p class="text-lg font-black text-yellow-500 mt-1" id="simScore">--</p>
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-lg border border-white/5">
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Telemetry Connection</span>
+                                <div class="w-full bg-black h-2 rounded-full mt-3 overflow-hidden">
+                                    <div id="simProgress" class="bg-yellow-500 h-full w-0 transition-all duration-1000"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-center text-sm font-semibold tracking-widest text-gray-500 uppercase mt-8">
+                        Turning creative ideas into scalable IP. One infrastructure. One pipeline. One destination.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 3. WHY IT MATTERS + ECOSYSTEM -->
+            <section class="grid lg:grid-cols-12 gap-8 reveal-on-scroll w-full">
+                
+                <!-- Left Side: Why It Matters List -->
+                <div class="lg:col-span-5 flex flex-col justify-between space-y-8">
+                    <div>
+                        <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 flex-none">
+                            Why It <span class="text-gradient">Matters</span>
+                        </h2>
+                        <p class="text-gray-400 leading-relaxed">
+                            By integrating a structural layer upstream, Qantica resolves the foundational friction point in global creative IP development.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="glass-panel p-6 flex gap-4 items-start hover:border-yellow-500/20 transition-all duration-300">
+                            <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
+                                <i class="ph-fill ph-shield-check text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-white text-lg">01 Reduce Risk</h4>
+                                <p class="text-sm text-gray-400 mt-1">Projects arrive thoroughly validated and refined before studio or platform acquisition.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-6 flex gap-4 items-start hover:border-yellow-500/20 transition-all duration-300">
+                            <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
+                                <i class="ph-fill ph-chart-line-up text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-white text-lg">02 Increase Scale</h4>
+                                <p class="text-sm text-gray-400 mt-1">Thousands of complex narrative structures and scripts can be evaluated simultaneously.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-6 flex gap-4 items-start hover:border-yellow-500/20 transition-all duration-300">
+                            <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
+                                <i class="ph-fill ph-cube text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-white text-lg">03 Create New Assets</h4>
+                                <p class="text-sm text-gray-400 mt-1">Unlocks multi-format potential across film, series, gaming, transmedia and merchandising.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Pillars of Innovation -->
-                <div class="space-y-4">
-                    <h3 class="text-xs md:text-sm font-bold text-gray-400 tracking-wider uppercase mb-2">Our Pillars</h3>
-                    
-                    <div class="glass-panel p-5 md:p-6 hover:border-yellow-500/20 transition-all duration-300">
-                        <h4 class="font-bold text-white text-sm md:text-base mb-1 flex items-center gap-2">
-                            <i class="ph ph-notebook text-yellow-500"></i> From Script to Scalable IP
-                        </h4>
-                        <p class="text-xs text-gray-400">
-                            One streamlined pipeline turning raw stories and dormant scripts into investable assets.
+                <!-- Right Side: Ecosystem Diagram -->
+                <div class="lg:col-span-7 glass-panel p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div>
+                        <span class="text-xs text-yellow-500 font-bold uppercase tracking-widest block mb-2">Connecting the Value Chain</span>
+                        <h3 class="text-2xl font-bold mb-4">The Qantica Ecosystem</h3>
+                        <p class="text-sm text-gray-400">
+                            We sit structurally between Creation and Acquisition, acting as the intelligent router that aligns raw materials with market requirements.
                         </p>
                     </div>
 
-                    <div class="glass-panel p-5 md:p-6 hover:border-yellow-500/20 transition-all duration-300">
-                        <h4 class="font-bold text-white text-sm md:text-base mb-1 flex items-center gap-2">
-                            <i class="ph ph-arrows-merge text-yellow-500"></i> The 360° Value Engine
-                        </h4>
-                        <p class="text-xs text-gray-400">
-                            Unlocking full IP potential from day one by expanding stories across film, series, and gaming to maximize market value.
-                        </p>
+                    <!-- Interactive SVG Node Map -->
+                    <div class="my-8 relative h-64 border border-white/5 bg-black/40 rounded-xl flex items-center justify-center">
+                        
+                        <svg class="absolute inset-0 w-full h-full" id="svgConnectorLines">
+                            <path d="M 50 128 C 150 128, 200 128, 300 128" stroke="rgba(250, 204, 21, 0.2)" stroke-width="2" fill="none" id="pathCreation"/>
+                            <path d="M 300 128 C 400 128, 450 128, 550 128" stroke="rgba(250, 204, 21, 0.2)" stroke-width="2" fill="none" id="pathAcquisition"/>
+                        </svg>
+
+                        <!-- Left: Creation -->
+                        <div class="absolute left-6 text-center z-10">
+                            <div onclick="pulseEcosystemData('creation')" class="w-16 h-16 rounded-full bg-[#111113] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-yellow-500/50 cursor-pointer transition-all duration-300 mx-auto">
+                                <i class="ph ph-pencil-line text-2xl"></i>
+                            </div>
+                            <span class="text-xs font-bold text-gray-400 block mt-2 uppercase tracking-widest">CREATION</span>
+                            <span class="text-[9px] text-gray-500 block">Writers & Creators</span>
+                        </div>
+
+                        <!-- Center: Qantica Node -->
+                        <div class="absolute text-center z-10">
+                            <div onclick="pulseEcosystemData('center')" class="w-24 h-24 rounded-full bg-gradient-to-br from-[#1a1a1e] to-[#050505] border-2 border-yellow-500 flex items-center justify-center cursor-pointer shadow-[0_0_30px_rgba(250,204,21,0.2)] active-pulse mx-auto">
+                                <span class="text-yellow-500 font-extrabold text-xs tracking-wider font-bold">QANTICA</span>
+                            </div>
+                            <span class="text-[10px] text-yellow-500 font-bold block mt-2 tracking-widest">INTELLIGENCE SYSTEM</span>
+                        </div>
+
+                        <!-- Right: Acquisition -->
+                        <div class="absolute right-6 text-center z-10">
+                            <div onclick="pulseEcosystemData('acquisition')" class="w-16 h-16 rounded-full bg-[#111113] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-yellow-500/50 cursor-pointer transition-all duration-300 mx-auto">
+                                <i class="ph ph-handshake text-2xl"></i>
+                            </div>
+                            <span class="text-xs font-bold text-gray-400 block mt-2 uppercase tracking-widest">ACQUISITION</span>
+                            <span class="text-[9px] text-gray-500 block">Studios & Buyers</span>
+                        </div>
+
+                        <div class="absolute bottom-2 text-center">
+                            <span class="text-[9px] text-gray-500 tracking-wider">CLICK NODES TO DISPATCH DATA PACKETS</span>
+                        </div>
                     </div>
 
-                    <div class="glass-panel p-5 md:p-6 hover:border-yellow-500/20 transition-all duration-300">
-                        <h4 class="font-bold text-white text-sm md:text-base mb-1 flex items-center gap-2">
-                            <i class="ph ph-shield-check text-yellow-500"></i> Protected Creative Efficiency
-                        </h4>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/5 text-center">
                         <p class="text-xs text-gray-400">
-                            Lowering risk for production companies while ensuring technology serves the writer who always retains absolute artistic control.
+                            We connect writers, audiences and industry to build highly optimized entertainment intellectual properties.
                         </p>
                     </div>
                 </div>
+            </section>
 
-            </div>
-        </section>
+            <!-- 4. THE PLATFORM -->
+            <section id="platform" class="space-y-12 reveal-on-scroll w-full">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    
+                    <div class="space-y-6">
+                        <div class="inline-flex items-center gap-2 text-yellow-500 font-semibold tracking-wider text-sm uppercase">
+                            <i class="ph ph-cpu"></i> Advanced Infrastructure
+                        </div>
+                        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+                            Innovation <br>at <span class="text-gradient">Scale</span>
+                        </h2>
+                        <p class="text-gray-400 leading-relaxed text-lg">
+                            A technological breakthrough that amplifies storytelling capabilities without ever compromising the artistic vision. We align raw data insights with pure creative discovery.
+                        </p>
 
-        <!-- 6. THE MARKET -->
-        <section id="market" class="space-y-12 reveal-on-scroll w-full">
-            <div class="text-center space-y-3">
-                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">
-                    A Massive <span class="text-gradient">Market Opportunity</span>
-                </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
-                    Qantica operates at the intersection of entertainment, technology and data, positioned across multiple high growth industries.
+                        <div class="border-l-2 border-yellow-500/30 pl-6 space-y-4">
+                            <p class="text-xs text-gray-400 font-medium tracking-widest uppercase">Key Infrastructure Objectives</p>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="glass-panel p-4 text-center">
+                                    <span class="text-yellow-500 text-sm md:text-base font-bold block">Faster Evaluation</span>
+                                    <span class="text-[10px] text-gray-500 font-bold block mt-1 uppercase">Swift Audits</span>
+                                </div>
+                                <div class="glass-panel p-4 text-center">
+                                    <span class="text-yellow-500 text-sm md:text-base font-bold block">Audience Intelligence</span>
+                                    <span class="text-[10px] text-gray-500 font-bold block mt-1 uppercase">Global Fit</span>
+                                </div>
+                                <div class="glass-panel p-4 text-center">
+                                    <span class="text-yellow-500 text-sm md:text-base font-bold block">Commercial Validation</span>
+                                    <span class="text-[10px] text-gray-500 font-bold block mt-1 uppercase">Ready Packets</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pillars of Innovation -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase mb-2">Our Pillars</h3>
+                        
+                        <div class="glass-panel p-6 hover:border-yellow-500/20 transition-all duration-300">
+                            <h4 class="font-bold text-white text-base mb-1 flex items-center gap-2">
+                                <i class="ph ph-notebook text-yellow-500"></i> From Script to Scalable IP
+                            </h4>
+                            <p class="text-xs text-gray-400">
+                                One streamlined pipeline turning raw stories and dormant scripts into investable assets.
+                            </p>
+                        </div>
+
+                        <div class="glass-panel p-6 hover:border-yellow-500/20 transition-all duration-300">
+                            <h4 class="font-bold text-white text-base mb-1 flex items-center gap-2">
+                                <i class="ph ph-arrows-merge text-yellow-500"></i> The 360° Value Engine
+                            </h4>
+                            <p class="text-xs text-gray-400">
+                                Unlocking full IP potential from day one by expanding stories across film, series, and gaming to maximize market value.
+                            </p>
+                        </div>
+
+                        <div class="glass-panel p-6 hover:border-yellow-500/20 transition-all duration-300">
+                            <h4 class="font-bold text-white text-base mb-1 flex items-center gap-2">
+                                <i class="ph ph-shield-check text-yellow-500"></i> Protected Creative Efficiency
+                            </h4>
+                            <p class="text-xs text-gray-400">
+                                Lowering risk for production companies while ensuring technology serves the writer who always retains absolute artistic control.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 5. WHY NOW -->
+            <section class="space-y-12 reveal-on-scroll relative w-full">
+                <div class="absolute inset-0 bg-gradient-to-r from-red-500/5 via-yellow-500/5 to-transparent blur-[120px] rounded-full pointer-events-none"></div>
+                
+                <div class="text-center space-y-4">
+                    <h2 class="text-4xl md:text-6xl font-black tracking-tight text-white uppercase">
+                        WHY <span class="text-gradient">NOW?</span>
+                    </h2>
+                    <p class="text-gray-300 max-w-2xl mx-auto text-base">
+                        The entertainment ecosystem has hit an inflection point. Conventional slow-paced workflows are collapsing. Qantica captures the current industry squeeze.
+                    </p>
+                </div>
+
+                <!-- Dashboard de Tensión de Mercado -->
+                <div class="grid lg:grid-cols-4 gap-6 w-full">
+                    
+                    <!-- Alerta 01 -->
+                    <div class="glass-panel border-red-500/30 bg-gradient-to-b from-red-950/10 to-[#111113]/40 p-6 hover:scale-105 hover:border-red-400/50 transition-all duration-300">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-red-400 uppercase tracking-widest">ALARM SIGNAL 01</span>
+                            <i class="ph-fill ph-trend-up text-red-400 text-lg"></i>
+                        </div>
+                        <h4 class="font-extrabold text-white text-lg mb-2">Content Volume Exploding</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            More content is written than humanly processable. Traditional development blocks under the massive wave.
+                        </p>
+                    </div>
+
+                    <!-- Alerta 02 -->
+                    <div class="glass-panel border-red-500/30 bg-gradient-to-b from-red-950/10 to-[#111113]/40 p-6 hover:scale-105 hover:border-red-400/50 transition-all duration-300">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-red-400 uppercase tracking-widest">ALERT SIGNAL 02</span>
+                            <i class="ph-fill ph-coins text-red-400 text-lg"></i>
+                        </div>
+                        <h4 class="font-extrabold text-white text-lg mb-2">Development Costs Skyrocket</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            Studios currently de-risk downstream. Unvalidated scripts cost millions in unrecoverable pilot and pitch expenses.
+                        </p>
+                    </div>
+
+                    <!-- Alerta 03 -->
+                    <div class="glass-panel border-yellow-500/30 bg-gradient-to-b from-yellow-950/10 to-[#111113]/40 p-6 hover:scale-105 hover:border-yellow-400/50 transition-all duration-300">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-yellow-400 uppercase tracking-widest">OPPORTUNITY FLAG 03</span>
+                            <i class="ph-fill ph-magnifying-glass text-yellow-400 text-lg"></i>
+                        </div>
+                        <h4 class="font-extrabold text-white text-lg mb-2">Discovery is Fragmented</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            High-tier storytelling hides in unmonitored non-traditional channels, unable to lock standard acquisitions.
+                        </p>
+                    </div>
+
+                    <!-- Alerta 04 -->
+                    <div class="glass-panel border-yellow-500/30 bg-gradient-to-b from-yellow-950/10 to-[#111113]/40 p-6 hover:scale-105 hover:border-yellow-400/50 transition-all duration-300">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold text-yellow-400 uppercase tracking-widest">CRITICAL FLAG 04</span>
+                            <i class="ph-fill ph-broadcast text-yellow-400 text-lg"></i>
+                        </div>
+                        <h4 class="font-extrabold text-white text-lg mb-2">Validated IP is Vital</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            Risk-averse buyers refuse blind pitches. Real-time data and metrics are required before signing sheets.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Banner Prominente Encendido -->
+                <div class="p-8 bg-gradient-to-r from-red-500/20 via-yellow-500/10 to-[#050505]/40 rounded-2xl border border-yellow-500/30 text-center shadow-[0_0_40px_rgba(250,204,21,0.15)] w-full">
+                    <p class="text-base md:text-lg font-black text-white tracking-wide uppercase">
+                        "The future belongs to platforms that can identify, develop and validate IP at scale."
+                    </p>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ==================== VISTA 2: THE MARKET (Página Independiente) ==================== -->
+        <div id="view-market" class="spa-view hidden-view max-w-7xl mx-auto px-6 pt-36 pb-24 space-y-20">
+            <div class="text-center space-y-6 max-w-4xl mx-auto py-12">
+                <span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">Market Analysis</span>
+                <h1 class="text-4xl md:text-7xl font-extrabold tracking-tight">
+                    A Massive <br><span class="text-gradient">Market Opportunity</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-400 font-light leading-relaxed">
+                    Qantica operates at the intersection of entertainment, technology and data. Positioned across multiple high growth industries that increasingly depend on scalable content development and IP discovery.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 w-full">
+            <!-- Grid de Tarjetas del Mercado (Muy visual, con más espacio) -->
+            <div class="grid md:grid-cols-5 gap-6 w-full py-12">
                 
                 <!-- Film Card -->
-                <div class="glass-panel glass-panel-interactive p-5 md:p-6 flex flex-col justify-between h-72">
+                <div class="glass-panel glass-panel-interactive p-8 flex flex-col justify-between h-80">
                     <div>
-                        <div class="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-6">
-                            <i class="ph ph-film-strip text-2xl"></i>
+                        <div class="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-6">
+                            <i class="ph ph-film-strip text-3xl"></i>
                         </div>
-                        <h3 class="font-bold text-white text-lg mb-2">Film</h3>
-                        <p class="text-xs text-gray-400">A major market requiring constant structural renewal.</p>
+                        <h3 class="font-bold text-white text-xl mb-2">Film</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">A major market requiring constant structural renewal and automated evaluation.</p>
                     </div>
-                    <span class="text-[11px] font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">$100B+ Global Industry</span>
+                    <span class="text-xs font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">$100B+ Global Industry</span>
                 </div>
 
                 <!-- Series & Vertical Series Card -->
-                <div class="glass-panel glass-panel-interactive p-5 md:p-6 flex flex-col justify-between h-72">
+                <div class="glass-panel glass-panel-interactive p-8 flex flex-col justify-between h-80">
                     <div>
-                        <div class="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-6">
-                            <i class="ph ph-television text-2xl"></i>
+                        <div class="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-6">
+                            <i class="ph ph-television text-3xl"></i>
                         </div>
-                        <h3 class="font-bold text-white text-lg mb-2">Series & Vertical Series</h3>
-                        <p class="text-xs text-gray-400">Constant and escalating demand for validated, scale-tested episodic IP.</p>
+                        <h3 class="font-bold text-white text-xl mb-2">Series & Vertical Series</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">Episodic stories scaling rapidly under next-gen micro-audience demands.</p>
                     </div>
-                    <span class="text-[11px] font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">Next-Gen Streaming</span>
+                    <span class="text-xs font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">Streaming Networks</span>
                 </div>
 
                 <!-- Gaming Card -->
-                <div class="glass-panel glass-panel-interactive p-5 md:p-6 flex flex-col justify-between h-72">
+                <div class="glass-panel glass-panel-interactive p-8 flex flex-col justify-between h-80">
                     <div>
-                        <div class="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-6">
-                            <i class="ph ph-game-controller text-2xl"></i>
+                        <div class="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-6">
+                            <i class="ph ph-game-controller text-3xl"></i>
                         </div>
-                        <h3 class="font-bold text-white text-lg mb-2">Gaming</h3>
-                        <p class="text-xs text-gray-400">Stories expanding into interactive and real-time multiplayer worlds.</p>
+                        <h3 class="font-bold text-white text-xl mb-2">Gaming</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">Stories expanding directly into interactive and real-time multiplayer worlds.</p>
                     </div>
-                    <span class="text-[11px] font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">Interactive IP</span>
+                    <span class="text-xs font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">Interactive IP Worlds</span>
                 </div>
 
                 <!-- Creator Economy Card -->
-                <div class="glass-panel glass-panel-interactive p-5 md:p-6 flex flex-col justify-between h-72">
+                <div class="glass-panel glass-panel-interactive p-8 flex flex-col justify-between h-80">
                     <div>
-                        <div class="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-6">
-                            <i class="ph ph-users text-2xl"></i>
+                        <div class="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-6">
+                            <i class="ph ph-users text-3xl"></i>
                         </div>
-                        <h3 class="font-bold text-white text-lg mb-2">Creator Economy</h3>
-                        <p class="text-xs text-gray-400">Independent creators transition directly into strategic IP owners.</p>
+                        <h3 class="font-bold text-white text-xl mb-2">Creator Economy</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">Empowering independent creators to transition directly into strategic IP owners.</p>
                     </div>
-                    <span class="text-[11px] font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">Empowering Creators</span>
+                    <span class="text-xs font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">Creator Expansion</span>
                 </div>
 
                 <!-- AI Assisted Development Card -->
-                <div class="glass-panel glass-panel-interactive p-5 md:p-6 flex flex-col justify-between h-72 sm:col-span-2 lg:col-span-1">
+                <div class="glass-panel glass-panel-interactive p-8 flex flex-col justify-between h-80">
                     <div>
-                        <div class="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-6">
-                            <i class="ph ph-cpu text-2xl"></i>
+                        <div class="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-6">
+                            <i class="ph ph-cpu text-3xl"></i>
                         </div>
-                        <h3 class="font-bold text-white text-lg mb-2">AI Assisted Dev</h3>
-                        <p class="text-xs text-gray-400">The next-generation framework powering scalable data operations.</p>
+                        <h3 class="font-bold text-white text-xl mb-2">AI Assisted Dev</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">The next-generation framework powering scalable data operations and structures.</p>
                     </div>
-                    <span class="text-[11px] font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">Creative Tech</span>
+                    <span class="text-xs font-bold text-yellow-500 tracking-wider uppercase block mt-4 border-t border-white/5 pt-3">Creative Tech Systems</span>
                 </div>
 
             </div>
-        </section>
 
-        <!-- 7. WHY NOW -->
-        <section class="space-y-12 reveal-on-scroll relative w-full">
-            <div class="absolute inset-0 bg-gradient-to-r from-red-500/5 via-yellow-500/5 to-transparent blur-[120px] rounded-full pointer-events-none"></div>
-            
-            <div class="text-center space-y-4">
-                <h2 class="text-4xl md:text-6xl font-black tracking-tight text-white uppercase">
-                    WHY <span class="text-gradient">NOW?</span>
-                </h2>
-                <p class="text-gray-300 max-w-2xl mx-auto text-sm md:text-base">
-                    The entertainment ecosystem has hit an inflection point. Conventional slow-paced workflows are collapsing. Qantica captures the current industry squeeze.
+            <!-- Contenedor extra con más aire -->
+            <div class="p-8 md:p-12 glass-panel border-yellow-500/20 max-w-4xl mx-auto text-center space-y-6">
+                <h3 class="text-2xl font-bold text-white">Positioned for the Next Creative Shift</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    By sitting upstream, Qantica filters and structures creative data to meet exactly what modern global buyers are looking for, de-risking high-scale investments.
                 </p>
+                <button onclick="openModal('accessModal')" class="bg-yellow-500 text-black px-6 py-3 rounded-xl font-bold text-xs hover:bg-yellow-400 transition-colors uppercase tracking-widest shadow-lg">
+                    Request Market Telemetry Packet
+                </button>
             </div>
+        </div>
 
-            <!-- Dashboard de Tensión de Mercado -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-                
-                <!-- Alerta 01 -->
-                <div class="glass-panel border-red-500/30 bg-gradient-to-b from-red-950/10 to-[#111113]/40 p-6 hover:scale-105 hover:border-red-400/50 transition-all duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">ALARM SIGNAL 01</span>
-                        <i class="ph-fill ph-trend-up text-red-400 text-lg"></i>
-                    </div>
-                    <h4 class="font-extrabold text-white text-base md:text-lg mb-2">Content Volume Exploding</h4>
-                    <p class="text-xs text-gray-400 leading-relaxed">
-                        More content is written than humanly processable. Traditional development blocks under the massive wave.
-                    </p>
-                </div>
 
-                <!-- Alerta 02 -->
-                <div class="glass-panel border-red-500/30 bg-gradient-to-b from-red-950/10 to-[#111113]/40 p-6 hover:scale-105 hover:border-red-400/50 transition-all duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">ALERT SIGNAL 02</span>
-                        <i class="ph-fill ph-coins text-red-400 text-lg"></i>
-                    </div>
-                    <h4 class="font-extrabold text-white text-base md:text-lg mb-2">Development Costs Skyrocket</h4>
-                    <p class="text-xs text-gray-400 leading-relaxed">
-                        Studios de-risk downstream. Unvalidated scripts cost millions in unrecoverable pilot and pitch expenses.
-                    </p>
-                </div>
-
-                <!-- Alerta 03 -->
-                <div class="glass-panel border-yellow-500/30 bg-gradient-to-b from-yellow-950/10 to-[#111113]/40 p-6 hover:scale-105 hover:border-yellow-400/50 transition-all duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-[10px] font-bold text-yellow-400 uppercase tracking-widest">OPPORTUNITY FLAG 03</span>
-                        <i class="ph-fill ph-magnifying-glass text-yellow-400 text-lg"></i>
-                    </div>
-                    <h4 class="font-extrabold text-white text-base md:text-lg mb-2">Discovery is Fragmented</h4>
-                    <p class="text-xs text-gray-400 leading-relaxed">
-                        High-tier storytelling hides in unmonitored non-traditional channels, unable to lock standard acquisitions.
-                    </p>
-                </div>
-
-                <!-- Alerta 04 -->
-                <div class="glass-panel border-yellow-500/30 bg-gradient-to-b from-yellow-950/10 to-[#111113]/40 p-6 hover:scale-105 hover:border-yellow-400/50 transition-all duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-[10px] font-bold text-yellow-400 uppercase tracking-widest">CRITICAL FLAG 04</span>
-                        <i class="ph-fill ph-broadcast text-yellow-400 text-lg"></i>
-                    </div>
-                    <h4 class="font-extrabold text-white text-base md:text-lg mb-2">Validated IP is Vital</h4>
-                    <p class="text-xs text-gray-400 leading-relaxed">
-                        Risk-averse buyers refuse blind pitches. Real-time data and market signals are required before final packaging.
-                    </p>
-                </div>
-
-            </div>
-
-            <!-- Banner Prominente Encendido -->
-            <div class="p-6 md:p-8 bg-gradient-to-r from-red-500/20 via-yellow-500/10 to-[#050505]/40 rounded-2xl border border-yellow-500/30 text-center shadow-[0_0_40px_rgba(250,204,21,0.15)] w-full">
-                <p class="text-sm md:text-lg font-black text-white tracking-wide uppercase">
-                    "The future belongs to platforms that can identify, develop and validate IP at scale."
-                </p>
-            </div>
-        </section>
-
-        <!-- 8. INVESTORS SECTION -->
-        <section id="investors" class="space-y-12 reveal-on-scroll w-full">
-            <div class="text-center space-y-3">
-                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight uppercase">
-                    INVESTORS
-                </h2>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider">
-                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> Funding Round Open
+        <!-- ==================== VISTA 3: INVESTORS (Página Independiente) ==================== -->
+        <div id="view-investors" class="spa-view hidden-view max-w-7xl mx-auto px-6 pt-36 pb-24 space-y-20">
+            <div class="text-center space-y-6 max-w-4xl mx-auto py-12">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-xs font-bold active-pulse uppercase tracking-wider">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Funding Round Open
                 </span>
+                <h1 class="text-4xl md:text-7xl font-extrabold tracking-tight">
+                    INVESTORS <br><span class="text-gradient">PORTAL</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-400 font-light leading-relaxed">
+                    Explore Qantica's core valuation thesis, market competitive advantages, and the scalable financial model designed to power long-term entertainment value.
+                </p>
             </div>
 
-            <div class="grid lg:grid-cols-2 gap-8 w-full items-stretch">
+            <div class="grid lg:grid-cols-2 gap-12 w-full items-stretch">
                 
                 <!-- Investment Thesis Box -->
-                <div class="glass-panel p-6 md:p-8 flex flex-col justify-between">
-                    <div class="space-y-4">
-                        <h3 class="text-lg md:text-xl font-bold flex items-center gap-2">
+                <div class="glass-panel p-10 flex flex-col justify-between">
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold flex items-center gap-2">
                             <i class="ph ph-hand-coins text-yellow-500"></i> Investment Thesis
                         </h3>
-                        <p class="text-gray-400 leading-relaxed text-xs md:text-sm">
+                        <p class="text-gray-400 leading-relaxed text-sm">
                             Entertainment entities spend billions securing intellectual properties. Qantica's validation framework improves content quality, lowers overall risk profile and unlocks vast commercial opportunities.
                         </p>
                     </div>
 
-                    <div class="my-6 p-4 bg-white/5 rounded-xl border-l-2 border-yellow-500 text-xs md:text-sm font-semibold text-white">
+                    <div class="my-8 p-6 bg-white/5 rounded-xl border-l-2 border-yellow-500 text-sm font-semibold text-white">
                         "Qantica is building the infrastructure layer between creators and buyers."
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="p-3 bg-black/40 border border-white/5 rounded-lg text-center">
-                            <span class="text-[10px] text-gray-500 block uppercase tracking-wider">Current Stage</span>
-                            <span class="text-xs md:text-sm font-bold text-yellow-500 mt-1 block uppercase font-bold">Funding Round Open</span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-black/40 border border-white/5 rounded-lg text-center">
+                            <span class="text-xs text-gray-500 block uppercase tracking-wider font-bold">Current Stage</span>
+                            <span class="text-sm font-bold text-yellow-500 mt-1 block uppercase">Funding Round Open</span>
                         </div>
-                        <div class="p-3 bg-black/40 border border-white/5 rounded-lg text-center">
-                            <span class="text-[10px] text-gray-500 block uppercase tracking-wider">Operational Model</span>
-                            <span class="text-xs md:text-sm font-bold text-white mt-1 block uppercase">Royalty + Platform License</span>
+                        <div class="p-4 bg-black/40 border border-white/5 rounded-lg text-center">
+                            <span class="text-xs text-gray-500 block uppercase tracking-wider font-bold">Operational Model</span>
+                            <span class="text-sm font-bold text-white mt-1 block uppercase">SaaS + Royalty</span>
                         </div>
                     </div>
 
-                    <!-- Clean and prioritized Access Data Room CTA -->
-                    <div class="mt-6">
-                        <button onclick="openModal('accessModal')" class="w-full py-3.5 bg-yellow-500 text-black rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-[0_0_20px_rgba(250,204,21,0.25)] flex items-center justify-center gap-2">
+                    <div class="mt-8">
+                        <button onclick="openModal('accessModal')" class="w-full py-4 bg-yellow-500 text-black rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-[0_0_20px_rgba(250,204,21,0.25)] flex items-center justify-center gap-2">
                             <i class="ph ph-shield-check"></i> Access Data Room
                         </button>
                     </div>
                 </div>
 
                 <!-- Why Qantica / Core strengths -->
-                <div class="glass-panel p-6 md:p-8 flex flex-col justify-between">
+                <div class="glass-panel p-10 flex flex-col justify-between">
                     <div>
-                        <h3 class="text-lg md:text-xl font-bold mb-6">Why Qantica?</h3>
-                        <div class="space-y-4">
+                        <h3 class="text-2xl font-bold mb-8">Why Qantica?</h3>
+                        <div class="space-y-6">
                             
-                            <div class="flex items-start gap-3">
-                                <i class="ph-bold ph-check text-yellow-500 mt-1"></i>
+                            <div class="flex items-start gap-4">
+                                <i class="ph-bold ph-check text-yellow-500 text-lg mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-white text-xs md:text-sm">Scalable Engine</h4>
-                                    <p class="text-[11px] md:text-xs text-gray-400">Capable of scalable script analysis and structured narrative evaluations.</p>
+                                    <h4 class="font-bold text-white text-base">Scalable Engine</h4>
+                                    <p class="text-xs text-gray-400 leading-relaxed">Capable of scalable script analysis, structured narrative evaluations, and instant telemetry extraction.</p>
                                 </div>
                             </div>
 
-                            <div class="flex items-start gap-3">
-                                <i class="ph-bold ph-check text-yellow-500 mt-1"></i>
+                            <div class="flex items-start gap-4">
+                                <i class="ph-bold ph-check text-yellow-500 text-lg mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-white text-xs md:text-sm">Proprietary Methodology</h4>
-                                    <p class="text-[11px] md:text-xs text-gray-400 font-light">Proprietary models designed to match narrative structures with verified historical performance.</p>
+                                    <h4 class="font-bold text-white text-base">Proprietary Methodology</h4>
+                                    <p class="text-xs text-gray-400 leading-relaxed">Proprietary models designed to match narrative structures with verified historical performance.</p>
                                 </div>
                             </div>
 
-                            <div class="flex items-start gap-3">
-                                <i class="ph-bold ph-check text-yellow-500 mt-1"></i>
+                            <div class="flex items-start gap-4">
+                                <i class="ph-bold ph-check text-yellow-500 text-lg mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-white text-xs md:text-sm">Multi-Revenue Streams</h4>
-                                    <p class="text-[11px] md:text-xs text-gray-400">Secures recurring software access margins along with transactional IP performance royalties.</p>
+                                    <h4 class="font-bold text-white text-base">Multi-Revenue Streams</h4>
+                                    <p class="text-xs text-gray-400 leading-relaxed">Secures recurring software access margins along with transactional IP performance royalties.</p>
                                 </div>
                             </div>
 
-                            <div class="flex items-start gap-3">
-                                <i class="ph-bold ph-check text-yellow-500 mt-1"></i>
+                            <div class="flex items-start gap-4">
+                                <i class="ph-bold ph-check text-yellow-500 text-lg mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-white text-xs md:text-sm">Global Market Ready</h4>
-                                    <p class="text-[11px] md:text-xs text-gray-400 font-light">Designed to operate directly across diverse, multi-lingual creative frameworks.</p>
+                                    <h4 class="font-bold text-white text-base">Global Market Ready</h4>
+                                    <p class="text-xs text-gray-400 leading-relaxed">Designed to operate directly across diverse, multi-lingual creative frameworks.</p>
                                 </div>
                             </div>
 
-                            <div class="flex items-start gap-3">
-                                <i class="ph-bold ph-check text-yellow-500 mt-1"></i>
+                            <div class="flex items-start gap-4">
+                                <i class="ph-bold ph-check text-yellow-500 text-lg mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-white text-xs md:text-sm">Strong Network Effects</h4>
-                                    <p class="text-[11px] md:text-xs text-gray-400">Value scales exponentially as more platform buyers join the marketplace pipeline.</p>
+                                    <h4 class="font-bold text-white text-base">Strong Network Effects</h4>
+                                    <p class="text-xs text-gray-400 leading-relaxed">Value scales exponentially as more platform buyers join the marketplace pipeline.</p>
                                 </div>
                             </div>
 
@@ -827,9 +764,9 @@
                 </div>
 
             </div>
-        </section>
+        </div>
 
-    </main>
+    </div>
 
     <!-- 9. BOTTOM BANNER (FULLSCREEN NYLO-INSPIRED INTERACTIVE GOLDEN PARTICLE SPHERE) -->
     <section class="w-full min-h-screen bg-black overflow-hidden flex flex-col justify-center items-center py-24 border-t border-white/5 relative z-10 mt-36">
@@ -839,26 +776,26 @@
         <div class="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505] pointer-events-none"></div>
         
         <div class="relative z-10 text-center space-y-8 px-6 max-w-4xl select-none mx-auto">
-            <h2 class="text-4xl sm:text-6xl md:text-8xl font-black tracking-tighter text-white uppercase leading-[1.05]">
+            <h2 class="text-5xl md:text-8xl font-black tracking-tighter text-white uppercase leading-[1.05]">
                 THE FUTURE OF <br>
                 <span class="text-gradient">ENTERTAINMENT IP</span> <br>
                 STARTS HERE.
             </h2>
-            <p class="text-base sm:text-lg md:text-2xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
+            <p class="text-lg md:text-2xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
                 Transforming stories into scalable, investable assets.
             </p>
             
             <div class="pt-6">
-                <button onclick="openModal('accessModal')" class="bg-yellow-500 text-black px-8 py-4 sm:px-10 sm:py-5 rounded-xl font-bold hover:bg-yellow-400 transition-all shadow-[0_0_40px_rgba(250,204,21,0.5)] hover:scale-105 inline-flex items-center gap-3 text-xs sm:text-sm md:text-base tracking-widest uppercase">
+                <button onclick="openModal('accessModal')" class="bg-yellow-500 text-black px-10 py-5 rounded-xl font-bold hover:bg-yellow-400 transition-all shadow-[0_0_40px_rgba(250,204,21,0.5)] hover:scale-105 inline-flex items-center gap-3 text-sm md:text-base tracking-widest uppercase">
                     Access Data Room <i class="ph-bold ph-arrow-right"></i>
                 </button>
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
+    <!-- FOOTER (Centrado estricto) -->
     <footer class="max-w-7xl mx-auto px-6 border-t border-white/10 pt-10 pb-6 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
-        <div class="text-xs md:text-sm text-gray-500 space-y-1 text-center md:text-left">
+        <div class="text-sm text-gray-500 space-y-1 text-center md:text-left">
             <p>&copy; 2026 QANTICA. Creative Infrastructure for the Entertainment Industry.</p>
             <div class="flex justify-center md:justify-start gap-4">
                 <a href="#" class="hover:text-yellow-500 transition-colors">Terms</a>
@@ -867,8 +804,8 @@
             </div>
         </div>
         <div class="flex flex-col items-center md:items-end text-center md:text-right">
-            <span class="text-[10px] md:text-xs font-bold text-gray-400 tracking-widest uppercase mb-1">Investment Portal</span>
-            <p class="text-[10px] md:text-xs text-gray-500 max-w-sm">
+            <span class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-1">Investment Portal</span>
+            <p class="text-xs text-gray-500 max-w-sm">
                 Accessing materials on this page implies strict adherence to non-disclosure protocols and legal criteria of investor frameworks.
             </p>
         </div>
@@ -876,11 +813,11 @@
 
     <!-- MODAL 1: VIEW DECK -->
     <div id="deckModal" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-2xl p-6 md:p-8 relative overflow-hidden border-yellow-500/30">
+        <div class="glass-panel w-full max-w-2xl p-8 relative overflow-hidden border-yellow-500/30">
             <div class="absolute top-0 right-0 w-48 h-48 bg-yellow-500/5 blur-[50px] rounded-full"></div>
             
             <div class="flex justify-between items-center border-b border-white/5 pb-4 mb-6">
-                <h3 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
                     <i class="ph ph-file-pdf text-yellow-500"></i> Qantica Presentation Deck
                 </h3>
                 <button onclick="closeModal('deckModal')" class="text-gray-400 hover:text-white text-2xl">
@@ -888,15 +825,15 @@
                 </button>
             </div>
 
-            <div class="space-y-4 text-xs md:text-sm text-gray-300">
+            <div class="space-y-4 text-sm text-gray-300">
                 <p>Welcome to the secure presentation window for <strong class="text-white">QANTICA</strong>.</p>
                 <div class="p-6 bg-black/50 border border-white/5 rounded-xl text-center space-y-4">
-                    <p class="text-[10px] md:text-xs text-gray-400">Download the full deck presentation file to examine exact details of market projection, valuation mechanisms, operational technology, and core ecosystem assets.</p>
-                    <button onclick="simulateAction('Downloading Presentation Deck (PDF)...')" class="bg-yellow-500 text-black px-6 py-3 rounded-lg font-bold text-[10px] md:text-xs hover:bg-yellow-400 transition-all flex items-center justify-center gap-2 mx-auto shadow-[0_0_15px_rgba(250,204,21,0.3)] uppercase tracking-wider">
+                    <p class="text-xs text-gray-400">Download the full presentation file to examine exact details of market projection, valuation mechanisms, operational technology, and core ecosystem assets.</p>
+                    <button onclick="simulateAction('Downloading Presentation Deck (PDF)...')" class="bg-yellow-500 text-black px-6 py-3 rounded-lg font-bold text-xs hover:bg-yellow-400 transition-all flex items-center justify-center gap-2 mx-auto shadow-[0_0_15px_rgba(250,204,21,0.3)] uppercase tracking-wider">
                         <i class="ph ph-download-simple"></i> Download Deck (PDF)
                     </button>
                 </div>
-                <div class="border-t border-white/5 pt-4 text-[10px] md:text-xs text-gray-500 flex justify-between items-center">
+                <div class="border-t border-white/5 pt-4 text-xs text-gray-500 flex justify-between items-center">
                     <span>Confidential Information</span>
                     <span>Qantica Structural Materials</span>
                 </div>
@@ -906,11 +843,11 @@
 
     <!-- MODAL 2: ACCESS DATA ROOM -->
     <div id="accessModal" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-lg p-6 md:p-8 relative overflow-hidden">
+        <div class="glass-panel w-full max-w-lg p-8 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-48 h-48 bg-yellow-500/5 blur-[50px] rounded-full"></div>
             
             <div class="flex justify-between items-center border-b border-white/5 pb-4 mb-6">
-                <h3 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
                     <i class="ph ph-shield-check text-yellow-500"></i> Secure Access Request
                 </h3>
                 <button onclick="closeModal('accessModal')" class="text-gray-400 hover:text-white text-2xl">
@@ -918,16 +855,16 @@
                 </button>
             </div>
 
-            <form onsubmit="event.preventDefault(); simulateAction('Access Request Sent Successfully. Pending Verification.');" class="space-y-4 text-xs md:text-sm text-gray-300">
-                <p class="text-[10px] md:text-xs text-gray-400">
+            <form onsubmit="event.preventDefault(); simulateAction('Access Request Sent Successfully. Pending Verification.');" class="space-y-4 text-sm text-gray-300">
+                <p class="text-xs text-gray-400">
                     Entering the Qantica secure database requires active validation credentials. Submit your request for investor clearance below.
                 </p>
                 <div class="space-y-2">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email Address</label>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Email Address</label>
                     <input type="email" required placeholder="investor@firm.com" class="w-full bg-[#111113] border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors">
                 </div>
                 <div class="space-y-2">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Access Tier Required</label>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Access Tier Required</label>
                     <select class="w-full bg-[#111113] border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors">
                         <option>Tier 1: High-Level Pitch Material</option>
                         <option>Tier 2: Financial Telemetry & Projections</option>
@@ -952,9 +889,63 @@
         </div>
     </div>
 
-
     <script>
-        // --- 1. FONDO INTERACTIVO DE CONSTELACIÓN (CANVAS) ---
+        // --- 1. SPA ROUTING CONTROLLER ---
+        function navigateTo(targetView) {
+            // Views mapping
+            const views = {
+                home: document.getElementById('view-home'),
+                market: document.getElementById('view-market'),
+                investors: document.getElementById('view-investors')
+            };
+
+            // Scroll to Platform helper on Home view
+            if (targetView === 'platform') {
+                navigateTo('home');
+                setTimeout(() => {
+                    const platformSection = document.getElementById('platform');
+                    if (platformSection) {
+                        platformSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 300);
+                return;
+            }
+
+            // Toggle view visibility classes with animations
+            for (const key in views) {
+                if (key === targetView) {
+                    views[key].classList.remove('hidden-view');
+                } else {
+                    views[key].classList.add('hidden-view');
+                }
+            }
+
+            // Update navigation highlights
+            const navLinks = {
+                home: document.getElementById('nav-home'),
+                platform: document.getElementById('nav-platform'),
+                market: document.getElementById('nav-market'),
+                investors: document.getElementById('nav-investors')
+            };
+
+            for (const key in navLinks) {
+                if (navLinks[key]) {
+                    if (key === targetView) {
+                        navLinks[key].classList.add('text-white');
+                        navLinks[key].classList.remove('text-gray-400');
+                    } else {
+                        navLinks[key].classList.remove('text-white');
+                        navLinks[key].classList.add('text-gray-400');
+                    }
+                }
+            }
+
+            // Back to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            showNotification("Navigation Active", `Entering Qantica: ${targetView.toUpperCase()}`);
+        }
+
+        // --- 2. FONDO INTERACTIVO DE CONSTELACIÓN (CANVAS) ---
         const canvas = document.getElementById('dataNetworkCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -1082,24 +1073,6 @@
         animateCanvas();
 
 
-        // --- 2. SISTEMA VISUAL FRAGMENTADO (THE INDUSTRY IS BROKEN) ---
-        function generateFracturedSystem() {
-            const container = document.getElementById('fracturedSystem');
-            if(!container) return;
-            container.innerHTML = '';
-            for (let i = 0; i < 15; i++) {
-                const fragment = document.createElement('div');
-                fragment.className = 'w-10 h-10 bg-red-500/10 border border-red-500/20 rounded flex items-center justify-center text-[10px] text-red-400 font-bold';
-                const deg = Math.floor(Math.random() * 30) - 15;
-                fragment.style.transform = `rotate(${deg}deg)`;
-                fragment.innerHTML = `<i class="ph ph-file-x"></i>`;
-                container.appendChild(fragment);
-            }
-        }
-        generateFracturedSystem();
-
-
-        // --- STREAMING_CHUNK: Managing state transitions for the sequential pipeline... ---
         // --- 3. WIDGET INTERACTIVO DE PIPELINE PASO A PASO ---
         let selectedStage = 1;
 
@@ -1144,7 +1117,7 @@
                 if (i <= selectedStage) {
                     card.classList.remove('opacity-50', 'border-white/5', 'bg-transparent');
                     card.classList.add('border-yellow-500/30', 'bg-yellow-500/5');
-                    if (numSpan) numSpan.className = "text-2xl md:text-3xl font-extrabold text-yellow-500";
+                    if (numSpan) numSpan.className = "text-3xl font-extrabold text-yellow-500";
                     if (btnExp) {
                         btnExp.innerHTML = i === selectedStage ? '<span>ACTIVE STAGE</span> <i class="ph ph-circle-wavy-check-fill animate-pulse"></i>' : '<span>PHASE READY</span> <i class="ph ph-check-circle"></i>';
                         btnExp.className = "flex items-center space-x-2 text-xs text-yellow-500 font-bold pt-4";
@@ -1152,7 +1125,7 @@
                 } else {
                     card.classList.add('opacity-50', 'border-white/5');
                     card.classList.remove('border-yellow-500/30', 'bg-yellow-500/5');
-                    if (numSpan) numSpan.className = "text-2xl md:text-3xl font-extrabold text-gray-500";
+                    if (numSpan) numSpan.className = "text-3xl font-extrabold text-gray-500";
                     if (btnExp) {
                         btnExp.innerHTML = '<span>LOCKED PHASE</span> <i class="ph ph-lock-key"></i>';
                         btnExp.className = "flex items-center space-x-2 text-xs text-gray-500 font-bold pt-4";
@@ -1189,7 +1162,7 @@
             const scoreText = document.getElementById('simScore');
             const progress = document.getElementById('simProgress');
 
-            statusText.innerText = "Analyzing story beats & telemetry...";
+            statusText.innerText = "Analyzing story beats & metrics...";
             progress.style.width = "40%";
 
             setTimeout(() => {
@@ -1215,7 +1188,6 @@
         }
 
 
-        // --- STREAMING_CHUNK: Activating scroll animations and orbit parallax... ---
         // --- 5. DETECCIÓN DE SCROLL (REVEAL ANIMATIONS) ---
         const scrollElements = document.querySelectorAll('.reveal-on-scroll');
 
@@ -1242,9 +1214,14 @@
             handleScrollAnimation();
             
             const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-            document.getElementById('orb1').style.transform = `translate(${scrollPercent * 50}px, ${scrollPercent * 30}px)`;
-            document.getElementById('orb2').style.transform = `translate(${-scrollPercent * 60}px, ${-scrollPercent * 40}px)`;
-            document.getElementById('orb3').style.transform = `translate(${scrollPercent * 30}px, ${-scrollPercent * 20}px)`;
+            const orb1 = document.getElementById('orb1');
+            const orb2 = document.getElementById('orb2');
+            const orb3 = document.getElementById('orb3');
+            if (orb1 && orb2 && orb3) {
+                orb1.style.transform = `translate(${scrollPercent * 50}px, ${scrollPercent * 30}px)`;
+                orb2.style.transform = `translate(${-scrollPercent * 60}px, ${-scrollPercent * 40}px)`;
+                orb3.style.transform = `translate(${scrollPercent * 30}px, ${-scrollPercent * 20}px)`;
+            }
         });
 
         handleScrollAnimation();
@@ -1402,7 +1379,7 @@
         animateSphere();
 
 
-        // --- 7. UTILS (MODALES & NOTIFICACIONES) ---
+        // --- 8. UTILS (MODALES & NOTIFICACIONES) ---
         function openModal(modalId) {
             document.getElementById(modalId).classList.remove('hidden');
         }
