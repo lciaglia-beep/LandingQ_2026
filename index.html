@@ -173,10 +173,10 @@
     <div id="orb3" class="ambient-orb w-[200px] h-[250px] md:w-[450px] md:h-[450px] bg-yellow-600/5 bottom-[10%] left-[10%]"></div>
 
     <!-- Fixed Header Navigation (Logo updated to qantica.png) -->
-    <nav class="fixed w-full z-50 glass-panel !rounded-none !border-t-0 !border-l-0 !border-r-0 border-b border-white/10 px-4 md:px-8 py-4 flex justify-between items-center">
-        <!-- Replaced logo text with qantica.png mapping -->
+    <nav class="fixed w-full z-50 glass-panel !rounded-none !border-t-0 !border-l-0 !border-r-0 border-b border-white/10 px-4 md:px-8 h-16 md:h-20 flex justify-between items-center">
+        <!-- Replaced logo text with qantica.png mapping - enlarged 4x within a sleek fixed-height bar -->
         <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-            <img src="qantica.png" alt="Qantica Logo" class="h-8 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <img src="qantica.png" alt="Qantica Logo" class="h-12 md:h-16 object-contain transition-all duration-300" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <span class="hidden text-xl md:text-2xl font-black tracking-widest text-white uppercase">QANTICA<span class="text-yellow-500">.</span></span>
         </div>
         <div class="hidden lg:flex space-x-8 text-xs font-semibold tracking-wider text-gray-400">
@@ -214,8 +214,8 @@
         <!-- Grand-Scale Infinite Loop Section (Writers & Film Node Connection - Uniform & Symmetrical) -->
         <div class="relative flex justify-center items-center w-full max-w-3xl py-16">
             <!-- Node Cine (Left) - Fully responsive styling -->
-            <div class="node-icon left-[2%] sm:left-[8%] top-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20">
-                <i class="ph-fill ph-film-slate text-yellow-500 text-2xl sm:text-3xl"></i>
+            <div onclick="playInfinityNode('film')" class="node-icon left-[2%] sm:left-[8%] top-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 cursor-pointer group active-pulse">
+                <i class="ph-fill ph-film-slate text-yellow-500 text-2xl sm:text-3xl group-hover:scale-110 transition-transform"></i>
                 <span class="absolute -bottom-8 text-[9px] sm:text-[10px] font-black tracking-widest text-gray-400">FILM</span>
             </div>
 
@@ -226,8 +226,8 @@
             </div>
 
             <!-- Node Videojuegos (Right) - Fully responsive styling -->
-            <div class="node-icon right-[2%] sm:right-[8%] top-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20">
-                <i class="ph-fill ph-game-controller text-yellow-500 text-2xl sm:text-3xl"></i>
+            <div onclick="playInfinityNode('games')" class="node-icon right-[2%] sm:right-[8%] top-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 cursor-pointer group active-pulse">
+                <i class="ph-fill ph-game-controller text-yellow-500 text-2xl sm:text-3xl group-hover:scale-110 transition-transform"></i>
                 <span class="absolute -bottom-8 text-[9px] sm:text-[10px] font-black tracking-widest text-gray-400">GAME</span>
             </div>
 
@@ -250,18 +250,32 @@
             </svg>
         </div>
 
-        <!-- Main Call To Actions -->
-        <div class="flex flex-col sm:flex-row gap-5 justify-center items-center w-full max-w-md px-4 pt-6">
-            <button onclick="openModal('deckModal')" class="w-full sm:w-1/2 px-6 py-4 rounded-xl font-bold bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(250, 204, 21, 0.4)] uppercase text-xs tracking-wider">
+        <!-- Inline Preview Container for Nodes (Dynamic Expand video view) -->
+        <div id="nodeVideoContainer" class="hidden w-full max-w-xl p-4 glass-panel border-yellow-500/30 text-center space-y-4">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <span id="nodeVideoTitle" class="text-xs font-black uppercase text-yellow-500">IP Preview</span>
+                <button onclick="closeNodeVideo()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            <div class="relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10">
+                <video id="nodeVideoPlayer" class="w-full h-full object-cover" controls playsinline>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+
+        <!-- Main Call To Actions - Perfect structural consistency (Equal size, height, padding, style) -->
+        <div class="flex flex-col sm:flex-row gap-5 justify-center items-center w-full max-w-lg px-4 pt-6">
+            <button onclick="openModal('deckModal')" class="w-full sm:w-1/2 h-14 rounded-xl font-bold bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(250, 204, 21, 0.4)] uppercase text-xs tracking-wider border border-yellow-500">
                 <i class="ph-bold ph-file-arrow-down"></i> View Deck
             </button>
-            <button onclick="openModal('accessModal')" class="w-full sm:w-1/2 px-6 py-4 rounded-xl font-bold border border-white/20 hover:border-yellow-500/50 hover:bg-yellow-500/10 text-white transition-all duration-300 flex items-center justify-center gap-2 glass-panel uppercase text-xs tracking-wider">
+            <button onclick="openModal('accessModal')" class="w-full sm:w-1/2 h-14 rounded-xl font-bold border border-white/20 hover:border-yellow-500/50 hover:bg-yellow-500/10 text-white transition-all duration-300 flex items-center justify-center gap-2 glass-panel uppercase text-xs tracking-wider">
                 <i class="ph-bold ph-lock-key"></i> Access Data Room
             </button>
         </div>
     </section>
 
-    <!-- 2. AI PRIVACY & PROTECTION WARNING BANNER -->
+    <!-- 2. AI PRIVACY & PROTECTION WARNING BANNER (Writer Protection Guarantee) -->
     <section id="protection" class="max-w-5xl mx-auto px-6 py-16 relative z-10 reveal-on-scroll">
         <div class="glass-panel p-6 md:p-8 border-yellow-500/30 bg-gradient-to-r from-yellow-950/20 via-black to-yellow-950/20 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-[0_0_40px_rgba(250,204,21,0.08)]">
             <div class="absolute inset-y-0 left-0 w-1 bg-yellow-500"></div>
@@ -271,7 +285,7 @@
                 </div>
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white uppercase tracking-wider">
-                        Writers Protection Guarantee
+                        Writer Protection Guarantee
                     </h3>
                     <p class="text-xs md:text-sm text-gray-400 mt-1 max-w-2xl leading-relaxed">
                         We <span class="text-yellow-500 font-bold">NEVER</span> train artificial intelligence models with writers' original manuscripts. Writers retain <strong class="text-white">100% intellectual property ownership</strong> and absolute artistic control of their original creative materials.
@@ -284,6 +298,34 @@
                 </span>
             </div>
         </div>
+
+        <!-- Screenplay Illustration mockup section to replace the old video slot -->
+        <div class="mt-8 glass-panel p-6 border-white/10 bg-[#09090b]/80 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="space-y-4 max-w-md text-left">
+                <span class="text-[10px] tracking-widest bg-yellow-500/15 text-yellow-400 px-2.5 py-1 rounded font-bold uppercase">Source Raw Material</span>
+                <h4 class="text-xl font-bold text-white">Original Screenplay Audit</h4>
+                <p class="text-xs text-gray-400 leading-relaxed">
+                    This is the entry manuscript curated directly inside the infrastructure. Our systems parse this document natively using the interactive evaluation engine to verify its IP metrics and expand format pathways.
+                </p>
+            </div>
+            
+            <!-- Beautiful Screenplay Mockup Illustration -->
+            <div class="w-full max-w-md glass-panel p-6 border-white/15 bg-black/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)] font-mono text-[10px] sm:text-[11px] text-gray-400 text-left select-none relative overflow-hidden h-64 flex flex-col justify-between">
+                <div class="absolute top-0 right-0 bg-yellow-500/15 border-l border-b border-yellow-500/30 px-3 py-1 text-[8px] font-sans font-bold text-yellow-500 uppercase tracking-widest">SCREENPLAY MASTER</div>
+                <div class="space-y-3 overflow-y-auto pr-1">
+                    <p class="text-white">FADE IN:</p>
+                    <p class="text-white font-bold tracking-wider">EXT. NEON HIGHWAY - NIGHT</p>
+                    <p class="pl-0">Rain beats down on the sleek chrome edges of the city. A solitary rider halts under a flashing sign.</p>
+                    <p class="pl-24 text-white font-bold tracking-wider">KAI</p>
+                    <p class="pl-12 text-gray-300">"They think the narrative is fixed. It's not. It's fluid."</p>
+                    <p class="pl-0">Kai activates the terminal. Data lines surge down the screen.</p>
+                </div>
+                <div class="border-t border-white/10 pt-3 flex justify-between items-center font-sans text-[8px] tracking-wider text-gray-500">
+                    <span>PAGE 1 OF QIP SYSTEM INTAKE</span>
+                    <span class="text-yellow-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-ping"></span> AUDITED SCREENPLAY</span>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- 3. VIDEO SHOWCASE (1906 x 942 Centered, With Elegant HUD Telemetry popups, No scanning lines) -->
@@ -292,7 +334,7 @@
         <!-- Cinematically proportioned viewport container (1906 x 942) -->
         <div class="relative w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] bg-black" style="aspect-ratio: 1906 / 942; max-width: 1906px;">
             <!-- Source Teaser Video -->
-            <video id="teaserVideo" class="absolute inset-0 w-full h-full object-cover opacity-100" autoplay loop muted playsinline>
+            <video id="teaserVideo2" class="absolute inset-0 w-full h-full object-cover opacity-100" autoplay loop muted playsinline>
                 <source src="VIDEO1.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -309,13 +351,13 @@
                 <div class="space-y-1 text-gray-300">
                     <p class="flex justify-between"><span>Narrative Scoring:</span> <span class="text-white font-semibold">94/100 IPI</span></p>
                     <p class="flex justify-between"><span>Transmedia Bridge:</span> <span class="text-white font-semibold">Film ⇆ Game Ready</span></p>
-                    <p class="flex justify-between"><span>Pipeline Status:</span> <span class="text-yellow-500 font-bold">Curated to QSS</span></p>
+                    <p class="flex justify-between"><span>Pipeline Status:</span> <span class="text-yellow-500 font-bold">Ready for QSS Review</span></p>
                 </div>
             </div>
 
             <!-- Scanning Status Indicators -->
             <div id="hudMetrics" class="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 glass-panel px-4 py-2 border-yellow-500/30 transition-all duration-500 opacity-0 flex items-center gap-2 text-[10px] font-bold tracking-widest text-yellow-500 uppercase">
-                <i class="ph ph-wave-sine text-sm animate-pulse"></i> Running QIP Curation Scanner
+                <i class="ph ph-wave-sine text-sm animate-pulse"></i> Running QIP Evaluation Scanner
             </div>
             
             <!-- Sleek lighting blends -->
@@ -325,10 +367,10 @@
         <!-- Description of QIP & QSS Frameworks and Trigger -->
         <div class="max-w-4xl text-center space-y-8 px-4">
             <div class="flex flex-col items-center space-y-4">
-                <button onclick="toggleQIPScan()" class="active-pulse bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-extrabold px-10 py-5 rounded-2xl hover:scale-105 hover:bg-yellow-400 transition-all shadow-[0_0_30px_rgba(250,204,21,0.3)] flex items-center justify-center gap-3 uppercase tracking-widest text-sm w-full sm:w-auto">
-                    <i class="ph-fill ph-cpu"></i> Activate QIP Engine
+                <button onclick="toggleQIPScan()" class="active-pulse bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-extrabold px-10 py-5 rounded-2xl hover:scale-105 hover:bg-yellow-400 transition-all shadow-[0_0_30px_rgba(250, 204, 21, 0.3)] flex items-center justify-center gap-3 uppercase tracking-widest text-sm w-full sm:w-auto">
+                    <i class="ph-fill ph-cpu"></i> Click to Activate QIP Engine
                 </button>
-                <p class="text-[10px] text-gray-500 uppercase tracking-widest text-center">Run interactive curation evaluation to verify narrative IPI strength</p>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest text-center">Run the interactive development evaluation to verify narrative IPI strength and gaming viability</p>
             </div>
 
             <div class="grid md:grid-cols-1 gap-8 text-left pt-6 border-t border-white/5">
@@ -337,7 +379,7 @@
                         <i class="ph ph-shield-check"></i> QIP: Qantica Intellectual Property
                     </h4>
                     <p class="text-xs text-gray-400 leading-relaxed">
-                        Our proprietary curation technology. Writers submit their screenplay, which QIP systematically vets to generate a structural Intellectual Property Index (IPI) score. From day one of curation, QIP SCRIPT & GAMES is activated, analyzing game viability immediately so the project transitions with maximum strength into QSS.
+                        QIP is Qantica’s structured IP development method. It analyzes narrative works, guides improvement, and evaluates film and game potential before each project moves into QSS.
                     </p>
                 </div>
             </div>
@@ -366,7 +408,7 @@
                         <i class="ph ph-pencil-line text-3xl text-yellow-500"></i>
                     </div>
                     <span class="text-sm font-bold text-white block mt-4 uppercase tracking-widest">Writers</span>
-                    <p class="text-[11px] text-gray-500 max-w-[200px] mt-1 mx-auto">Original creators holding absolute intellectual ownership & control.</p>
+                    <p class="text-[11px] text-gray-500 max-w-[200px] mt-1 mx-auto">Original creators holding absolute creative ownership & control.</p>
                 </div>
 
                 <!-- Center: Qantica Hub Node (Integrating Audience, Evaluation, Transmedia & Validation) -->
@@ -376,36 +418,32 @@
                     </div>
                     <span class="text-xs text-yellow-500 font-extrabold block mt-4 tracking-widest uppercase">Infrastructure Layer</span>
                     
-                    <!-- Sub-validation protocols mapped directly within Qantica -->
+                    <!-- Sub-validation protocols mapped directly within Qantica (Updated categories) -->
                     <div class="mt-4 flex flex-wrap justify-center gap-1.5 max-w-[280px]">
-                        <span class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-gray-300 uppercase">Audience Poll</span>
-                        <span class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-gray-300 uppercase">IPI Evaluation</span>
-                        <span class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-gray-300 uppercase">Transmedia Plan</span>
-                        <span class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-gray-300 uppercase">Market Validation</span>
+                        <span class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-gray-300 uppercase">Narrative Analysis</span>
+                        <span class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-gray-300 uppercase">Authorship Protection</span>
+                        <span class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-gray-300 uppercase">Film/Game Evaluation</span>
+                        <span class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-gray-300 uppercase">Market Positioning</span>
                     </div>
                 </div>
 
-                <!-- Right: Distribution & Studios Node -->
+                <!-- Right: Distribution & Studios Node (Updated labels and descriptions) -->
                 <div class="text-center z-10 w-full lg:w-1/3 flex flex-col items-center">
                     <div onclick="pulseEcosystemData('studios')" class="w-20 h-20 rounded-full bg-[#111113] border-2 border-white/15 flex items-center justify-center text-gray-400 hover:text-white hover:border-yellow-500/50 cursor-pointer transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-none mx-auto">
                         <i class="ph ph-handshake text-3xl text-yellow-500"></i>
                     </div>
-                    <span class="text-sm font-bold text-white block mt-4 uppercase tracking-widest">Studios & Streamers</span>
-                    <p class="text-[11px] text-gray-500 max-w-[200px] mt-1 mx-auto">Acquisition buyers and streaming platforms bidding on curated IP.</p>
+                    <span class="text-sm font-bold text-white block mt-4 uppercase tracking-widest">Studios, Platforms & Buyers</span>
+                    <p class="text-[11px] text-gray-500 max-w-[210px] mt-1 mx-auto leading-relaxed">Studios, platforms, and buyers reviewing structured IP packages for acquisition, licensing, development, or auction-based opportunities.</p>
                 </div>
 
-            </div>
-
-            <div class="mt-8 p-4 bg-black/40 rounded-xl border border-white/5 text-center">
-                <span class="text-[9px] text-gray-500 tracking-wider font-bold uppercase block">Interactive Node Map — Click Icons to Dispatch Real-time Diagnostics</span>
             </div>
         </div>
     </section>
 
-    <!-- CORE INFRASTRUCTURE PAGES (Spaciously padded layout blocks with "More Air" / space-y-48) -->
+    <!-- CORE INFRASTRUCTURE PAGES -->
     <main class="max-w-7xl mx-auto px-6 space-y-48 relative z-10 w-full flex flex-col items-center">
 
-        <!-- PÁGINA 5: THE ENGINE (REORGANIZED FLOW & REDUCED DEFAULT TEXT FOR INTERACTIVE HOVER REVEAL) -->
+        <!-- PÁGINA 5: THE ENGINE (REORGANIZED FLOW & INTERACTIVE HOVER REVEAL - TWO STAGES REMAINING ONLY) -->
         <section id="the-engine" class="space-y-16 reveal-on-scroll w-full pt-8">
             <div class="text-center space-y-3">
                 <h2 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-4">The Engine</h2>
@@ -414,90 +452,65 @@
                 </p>
             </div>
 
-            <div class="grid lg:grid-cols-3 gap-8 w-full">
-                <!-- Engine Block 1: QIP -->
+            <div class="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                <!-- Engine Stage 01: QIP Development & Evaluation -->
                 <div class="glass-panel p-8 flex flex-col justify-between h-80 border-white/10 hover:border-yellow-500/50 hover:bg-yellow-500/[0.02] transition-all duration-500 group cursor-pointer overflow-hidden">
                     <div class="space-y-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-4xl font-black text-yellow-500">01</span>
-                            <span class="text-[9px] tracking-widest bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded font-bold uppercase">QIP Curation</span>
+                            <span class="text-4xl font-black text-yellow-500">Stage 01</span>
+                            <span class="text-[9px] tracking-widest bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded font-bold uppercase">QIP Development & Evaluation</span>
                         </div>
-                        <h3 class="text-lg font-extrabold uppercase tracking-wide text-white group-hover:text-yellow-400 transition-colors">Qantica Intellectual Property</h3>
+                        <h3 class="text-lg font-extrabold uppercase tracking-wide text-white group-hover:text-yellow-400 transition-colors">Narrative Analysis & Film/Game Evaluation</h3>
                         
                         <!-- Initial state visuals instead of raw text -->
                         <div class="py-2 flex items-center gap-3 text-xs text-gray-500 group-hover:hidden transition-all duration-300">
                             <i class="ph ph-fingerprint text-xl text-yellow-500 animate-pulse"></i>
-                            <span>Vetting Screenplay & Assigning IPI Score</span>
+                            <span>Auditing Game Viability from Day One of Curation</span>
                         </div>
                         
                         <!-- Hover hidden description revealed smoothly -->
                         <p class="text-xs text-gray-400 leading-relaxed hidden group-hover:block transition-all duration-500 animate-fade-in">
-                            Curation protocol designed to vet screenplays and assign their unique IPI (Intellectual Property Index). Activating QIP SCRIPT & GAMES from day one of curation, analyzing game viability immediately so the project transitions with maximum strength into QSS. Only vetted entries proceed.
+                            QIP analyzes the screenplay, guides structured improvement, and evaluates audiovisual and gaming potential from the start of the process. Only vetted entries proceed.
                         </p>
                     </div>
                     <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold border-t border-white/5 pt-3 group-hover:text-yellow-500 transition-colors">
-                        + Faster evaluation
+                        + Intelligent curation analysis
                     </div>
                 </div>
 
-                <!-- Engine Block 2: QSS -->
+                <!-- Engine Stage 02: Market Positioning -->
                 <div class="glass-panel p-8 border-white/10 hover:border-yellow-500/50 hover:bg-yellow-500/[0.02] flex flex-col justify-between h-80 transition-all duration-500 group cursor-pointer overflow-hidden">
                     <div class="space-y-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-4xl font-black text-yellow-500">02</span>
-                            <span class="text-[9px] tracking-widest bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded font-bold uppercase">QSS Packaging</span>
+                            <span class="text-4xl font-black text-yellow-500">Stage 02</span>
+                            <span class="text-[9px] tracking-widest bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded font-bold uppercase">Market Positioning</span>
                         </div>
-                        <h3 class="text-lg font-extrabold uppercase tracking-wide text-white group-hover:text-yellow-400 transition-colors">Qantica Smart System</h3>
+                        <h3 class="text-lg font-extrabold uppercase tracking-wide text-white group-hover:text-yellow-400 transition-colors">Audience, Format, Scale & Commercial Strategy</h3>
                         
                         <!-- Initial state visuals instead of raw text -->
                         <div class="py-2 flex items-center gap-3 text-xs text-gray-500 group-hover:hidden transition-all duration-300">
                             <i class="ph ph-git-merge text-xl text-yellow-500 animate-pulse"></i>
-                            <span>Transmedia Alignment & Co-Financing Models</span>
+                            <span>Constructing Multi-format Transmedia Pathways</span>
                         </div>
 
                         <!-- Hover hidden description revealed smoothly -->
                         <p class="text-xs text-gray-400 leading-relaxed hidden group-hover:block transition-all duration-500 animate-fade-in">
-                            Formulates robust co-production financing plans, marketing portfolios, packages teasers, satellites, transmedia roadmaps (Film ⇆ Game), and drafts scalable buyer financing deals.
+                            QSS contextualizes each IP commercially: audience, format, positioning, production scale, expansion potential, and strategic market path.
                         </p>
                     </div>
                     <div class="text-[10px] text-yellow-500 uppercase tracking-widest font-bold border-t border-white/5 pt-3 group-hover:text-yellow-500 transition-colors">
-                        + Scalable IP development
-                    </div>
-                </div>
-
-                <!-- Engine Block 3: Marketplace -->
-                <div class="glass-panel p-8 border-white/10 hover:border-yellow-500/50 hover:bg-yellow-500/[0.02] flex flex-col justify-between h-80 transition-all duration-500 group cursor-pointer overflow-hidden">
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-4xl font-black text-yellow-500">03</span>
-                            <span class="text-[9px] tracking-widest bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded font-bold uppercase">Marketplace</span>
-                        </div>
-                        <h3 class="text-lg font-extrabold uppercase tracking-wide text-white group-hover:text-yellow-400 transition-colors">Bidding & Licensing</h3>
-                        
-                        <!-- Initial state visuals instead of raw text -->
-                        <div class="py-2 flex items-center gap-3 text-xs text-gray-500 group-hover:hidden transition-all duration-300">
-                            <i class="ph ph-gavel text-xl text-yellow-500 animate-pulse"></i>
-                            <span>Securing De-Risked Studio Acquisitions</span>
-                        </div>
-
-                        <!-- Hover hidden description revealed smoothly -->
-                        <p class="text-xs text-gray-400 leading-relaxed hidden group-hover:block transition-all duration-500 animate-fade-in">
-                            Vetted and fully structured packages enter the private Marketplace. Global streamers and platform buyers bid on de-risked properties backed by predictive audience indicators.
-                        </p>
-                    </div>
-                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold border-t border-white/5 pt-3 group-hover:text-yellow-500 transition-colors">
-                        + Commercial validation
+                        + Commercial positioning & teasers
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PÁGINA 6: DISTRIBUCIÓN Y SALIDA AL MERCADO (THE MARKET EXIT - RE-STYLED AS EXTREMELY VISUAL HUD METRICS) -->
+        <!-- PÁGINA 6: DISTRIBUCIÓN Y SALIDA AL MERCADO (MARKETPLACE ACCESS) -->
         <section id="the-market" class="space-y-12 reveal-on-scroll w-full">
             <div class="text-center space-y-3">
-                <h2 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-4">The Market Exit</h2>
+                <h2 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-4">Marketplace Access</h2>
                 <p class="text-gray-400 max-w-2xl mx-auto text-base">
-                    Packaging, financing, and positioning fully validated IPs for direct license bidding and strategic private acquisitions. Hover over columns to inspect exit stages.
+                    Once an IP has been evaluated and positioned through QIP and QSS, it can enter the Marketplace for buyer review, licensing conversations, strategic acquisition, and private auction pathways. Hover over columns to inspect exit stages.
                 </p>
             </div>
 
@@ -512,12 +525,12 @@
                                 <i class="ph ph-package text-xl text-yellow-500 group-hover:rotate-12 transition-transform"></i>
                             </div>
                             <h4 class="font-extrabold text-white text-sm">Packaging</h4>
-                            <p class="text-xs text-gray-400 mt-2 hidden group-hover:block transition-all animate-fade-in">Integrating vetted screenplays with visual dossiers, gameplay mechanics, and demographic proofing.</p>
+                            <p class="text-xs text-gray-400 mt-2 hidden group-hover:block transition-all animate-fade-in">Integrating narrative analysis, gaming potential, market context, and commercial positioning into a structured IP package.</p>
                             <div class="flex items-center gap-2 text-[10px] text-gray-500 group-hover:hidden pt-2">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span> Ready for Dossier assembly
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span> Ready for IP package review
                             </div>
                         </div>
-                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-yellow-500 transition-colors">Asset Packaging</span>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-yellow-500 transition-colors">IP Package</span>
                     </div>
 
                     <!-- Module 2 -->
@@ -528,12 +541,12 @@
                                 <i class="ph ph-bank text-xl text-yellow-500 group-hover:scale-110 transition-transform"></i>
                             </div>
                             <h4 class="font-extrabold text-white text-sm">Financing Plan</h4>
-                            <p class="text-xs text-gray-400 mt-2 hidden group-hover:block transition-all animate-fade-in">Constructing structured co-production financing plans to streamline acquisition pathways.</p>
+                            <p class="text-xs text-gray-400 mt-2 hidden group-hover:block transition-all animate-fade-in">Defining production logic, buyer context, commercial pathways, and strategic positioning before market conversations begin.</p>
                             <div class="flex items-center gap-2 text-[10px] text-gray-500 group-hover:hidden pt-2">
-                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Co-production parameters open
+                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Commercial path defined
                             </div>
                         </div>
-                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-yellow-500 transition-colors">Structured Finance</span>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-yellow-500 transition-colors">Commercial Positioning</span>
                     </div>
 
                     <!-- Module 3 -->
@@ -543,13 +556,13 @@
                                 <span class="text-xs font-black uppercase text-yellow-500 block">Stage 03</span>
                                 <i class="ph ph-gavel text-xl text-yellow-500 group-hover:animate-bounce transition-transform"></i>
                             </div>
-                            <h4 class="font-extrabold text-white text-sm">Auction Entry</h4>
-                            <p class="text-xs text-gray-400 mt-2 hidden group-hover:block transition-all animate-fade-in">Releasing completely packaged IPs to private auction boards for streaming platform acquisition.</p>
+                            <h4 class="font-extrabold text-white text-sm">Private Auction Entry</h4>
+                            <p class="text-xs text-gray-400 mt-2 hidden group-hover:block transition-all animate-fade-in">Introducing selected IP packages into private auction or buyer review environments for studios, platforms, and strategic partners.</p>
                             <div class="flex items-center gap-2 text-[10px] text-gray-500 group-hover:hidden pt-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span> Bidding connection available
                             </div>
                         </div>
-                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-yellow-500 transition-colors">Global Streamer Bidding</span>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-yellow-500 transition-colors">Studio, Platform & Auction Access</span>
                     </div>
                 </div>
             </div>
@@ -562,7 +575,7 @@
                     INVESTORS
                 </h2>
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-xs font-bold active-pulse">
-                    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Current Stage: Funding Round Open
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Current Stage: Investor Access Now Open
                 </span>
             </div>
 
@@ -575,18 +588,18 @@
                             <i class="ph ph-hand-coins text-yellow-500"></i> Investment Thesis
                         </h3>
                         <p class="text-gray-400 leading-relaxed text-sm">
-                            Entertainment entities spend billions securing intellectual properties. Qantica's automated scalable layer improves content quality, lowers overall risk profile and unlocks vast commercial opportunities.
+                            Entertainment entities spend billions acquiring and developing IP. Qantica's automated scalable layer improves content quality, lowers overall risk profile and unlocks vast commercial opportunities.
                         </p>
                     </div>
 
                     <div class="my-6 p-4 bg-white/5 rounded-xl border-l-2 border-yellow-500 text-sm font-semibold text-white">
-                        "Qantica is building the infrastructure layer between writers and buyers."
+                        Qantica builds the infrastructure layer between writers and buyers, preparing and evaluating narrative IP before production capital is committed.
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="p-3 bg-black/40 border border-white/5 rounded-lg text-center">
                             <span class="text-xs text-gray-500 block">Stage</span>
-                            <span class="text-sm font-bold text-white mt-1 block">Active Round</span>
+                            <span class="text-sm font-bold text-white mt-1 block">Series A</span>
                         </div>
                         <div class="p-3 bg-black/40 border border-white/5 rounded-lg text-center">
                             <span class="text-xs text-gray-500 block">Operational Model</span>
@@ -604,7 +617,7 @@
                             <div class="flex items-start gap-3">
                                 <i class="ph-bold ph-check text-yellow-500 mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-white text-sm">Scalable Engine</h4>
+                                    <h4 class="font-bold text-white text-sm">Structured and Scalable IP Infrastructure</h4>
                                     <p class="text-xs text-gray-400">Capable of parallel analysis processing across narrative structures.</p>
                                 </div>
                             </div>
@@ -612,7 +625,7 @@
                             <div class="flex items-start gap-3">
                                 <i class="ph-bold ph-check text-yellow-500 mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-white text-sm">Proprietary Curation</h4>
+                                    <h4 class="font-bold text-white text-sm">Patent-Backed Methodology</h4>
                                     <p class="text-xs text-gray-400">Validated IPI index metrics designed to score commercial viability before production.</p>
                                 </div>
                             </div>
@@ -666,9 +679,9 @@
                 </button>
             </div>
 
-            <!-- Large Branding Banner at the bottom (Logo mapped cleanly as qantica.png) -->
-            <div class="pt-16 max-w-lg mx-auto opacity-100 flex justify-center">
-                <img src="qantica.png" alt="Qantica Logo Big" class="max-w-[280px] w-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <!-- Large Branding Banner at the bottom - enlarged 2-3x (max-w-lg to max-w-4xl, image max-w-[280px] to max-w-[750px]) -->
+            <div class="pt-16 max-w-4xl mx-auto opacity-100 flex justify-center">
+                <img src="qantica.png" alt="Qantica Logo Big" class="max-w-[750px] w-full object-contain transition-all duration-300" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <span class="hidden text-5xl font-black tracking-widest text-white uppercase">QANTICA<span class="text-yellow-500">.</span></span>
             </div>
         </div>
@@ -748,12 +761,12 @@
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Access Tier Required</label>
                     <select class="w-full bg-[#111113] border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors">
                         <option>Tier 1: High-Level Pitch Material</option>
-                        <option>Tier 2: Financial Telemetry & Projections</option>
-                        <option>Tier 3: Active Narrative/IP Catalog</option>
+                        <option>Tier 2: Financial Model & Commercial Projections</option>
+                        <option>Tier 3: Active IP Catalog</option>
                     </select>
                 </div>
                 <button type="submit" class="w-full bg-yellow-500 text-black py-3 rounded-lg font-bold text-xs hover:bg-yellow-400 transition-colors">
-                    Request Secure Credentials
+                    Request Data Room Access
                 </button>
             </form>
         </div>
@@ -951,8 +964,38 @@
         }
         animateFlow();
 
+        // --- INFINITE NODE VIDEO INTERACTIVITY CONTROLLER ---
+        function playInfinityNode(type) {
+            const container = document.getElementById('nodeVideoContainer');
+            const title = document.getElementById('nodeVideoTitle');
+            const player = document.getElementById('nodeVideoPlayer');
+            
+            container.classList.remove('hidden');
+            if (type === 'film') {
+                title.innerText = "QIP Film Pipeline Overview";
+                player.src = "qipscript.mp4";
+            } else if (type === 'games') {
+                title.innerText = "QIP Games Pipeline Overview";
+                player.src = "qipgames.mp4";
+            }
+            player.play().catch(err => {
+                console.log("Mock video player playback exception caught successfully: ", err);
+            });
+            showNotification("Infinity Preview Active", `Loading narrative target asset overview...`);
+            
+            // Auto scroll preview container into view
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
 
-        // --- 3. QIP SYSTEM TERMINAL SCANNER CONTROL (No scanning lines) ---
+        function closeNodeVideo() {
+            const container = document.getElementById('nodeVideoContainer');
+            const player = document.getElementById('nodeVideoPlayer');
+            player.pause();
+            container.classList.add('hidden');
+        }
+
+
+        // --- 3. QIP SYSTEM TERMINAL SCANNER CONTROL ---
         let isQIPActive = false;
         function toggleQIPScan() {
             isQIPActive = !isQIPActive;
@@ -1192,7 +1235,7 @@
         animateSphere();
 
 
-        // --- 7. UTILITIES (MODALES & SYSTEM NOTIFICATIONS) ---
+        // --- 7. UTILITIES (MODALS & SYSTEM NOTIFICATIONS) ---
         function openModal(modalId) {
             document.getElementById(modalId).classList.remove('hidden');
         }
@@ -1220,7 +1263,7 @@
         }
 
         // Force Autoplay to secure continuous loops
-        const mainVideo = document.getElementById('teaserVideo');
+        const mainVideo = document.getElementById('teaserVideo2');
         if (mainVideo) {
             mainVideo.play().catch(e => {
                 console.log("Safe Autoplay engaged after user interaction triggers:", e);
