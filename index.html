@@ -130,6 +130,10 @@ body{
 .stage{opacity:0;}
 #journeyPhase{display:inline-block;}
 
+/* live screenplay caret */
+.sp-caret{display:inline-block;width:6px;height:1.05em;background:var(--gold);margin-left:2px;vertical-align:-2px;animation:spblink 1s steps(1) infinite;}
+@keyframes spblink{50%{opacity:0}}
+
 /* connection diagram */
 .cnode{transform:translate(-50%,-50%);}
 .conn{fill:none;stroke:url(#connGrad);stroke-width:2.4;stroke-dasharray:1;stroke-dashoffset:1;filter:url(#connGlow);}
@@ -408,7 +412,7 @@ body{
   </div>
 
   <!-- pillars -> QSS convergence -->
-  <div class="relative max-w-5xl mx-auto px-6 hidden md:block -mt-2 mb-2" aria-hidden="true">
+  <div class="relative max-w-6xl mx-auto px-6 hidden md:block -mt-2 mb-2" aria-hidden="true">
     <svg id="pconv" class="w-full" height="130" viewBox="0 0 1152 130" preserveAspectRatio="none">
       <defs>
         <linearGradient id="pconvGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde047"/><stop offset="1" stop-color="#a16207"/></linearGradient>
@@ -505,14 +509,7 @@ body{
     </div>
     <div class="w-full max-w-md glass p-6 border-white/15 bg-[#09090b]/80 font-mono text-[11px] text-gray-400 text-left select-none relative h-64 flex flex-col justify-between overflow-hidden">
       <div class="absolute top-0 right-0 bg-yellow-500/15 border-l border-b border-yellow-500/30 px-3 py-1 text-[8px] font-sans font-bold text-yellow-500 uppercase tracking-widest">Screenplay master</div>
-      <div class="space-y-3 overflow-y-auto pr-1">
-        <p class="text-white">FADE IN:</p>
-        <p class="text-white font-bold tracking-wider">EXT. NEON STREETS — NIGHT</p>
-        <p>Digital artifacts shimmer against the dark. A curator initializes the deployment layer.</p>
-        <p class="pl-20 text-white font-bold tracking-wider">KAI</p>
-        <p class="pl-10 text-gray-300">"The pipeline is unified. The story is protected."</p>
-        <p>The node flashes green. Structural validation complete.</p>
-      </div>
+      <div id="screenplay" class="space-y-2.5 overflow-y-auto pr-1 min-h-[150px]"></div>
       <div class="border-t border-white/10 pt-3 flex justify-between items-center font-sans text-[8px] tracking-wider text-gray-500">
         <span>Page 1 of deployed intake</span>
         <span class="text-yellow-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-ping"></span> Secured manuscript</span>
@@ -763,9 +760,35 @@ function drawP(){cx.clearRect(0,0,innerWidth,innerHeight);
 }
 addEventListener('resize',sizeCv);sizeCv();if(!RM)drawP();else{drawP();/* draw once-ish */}
 
+/* ---------- live screenplay typewriter ---------- */
+const SCRIPT_LINES=[
+  {t:'FADE IN:',c:'text-white'},
+  {t:'EXT. NEON STREETS — NIGHT',c:'text-white font-bold tracking-wider'},
+  {t:'Digital artifacts shimmer against the dark. A curator initializes the deployment layer.',c:''},
+  {t:'KAI',c:'pl-20 text-white font-bold tracking-wider'},
+  {t:'"The pipeline is unified. The story is protected."',c:'pl-10 text-gray-300'},
+  {t:'The node flashes green. Structural validation complete.',c:''}
+];
+let spStarted=false;
+function startScreenplay(){
+  const host=document.getElementById('screenplay');
+  if(!host||spStarted)return; spStarted=true;
+  if(RM){ host.innerHTML=''; SCRIPT_LINES.forEach(l=>{const p=document.createElement('p');p.className=l.c;p.textContent=l.t;host.appendChild(p);}); return; }
+  const caret=document.createElement('span'); caret.className='sp-caret';
+  let li=0,ci=0,cur=null;
+  function tick(){
+    if(li>=SCRIPT_LINES.length){ setTimeout(()=>{host.innerHTML='';li=0;ci=0;cur=null;tick();},2800); return; }
+    if(!cur){ cur=document.createElement('p'); cur.className=SCRIPT_LINES[li].c; host.appendChild(cur); }
+    const full=SCRIPT_LINES[li].t;
+    if(ci<full.length){ cur.textContent=full.slice(0,++ci); cur.appendChild(caret); setTimeout(tick,16+Math.random()*42); }
+    else { li++; ci=0; cur=null; setTimeout(tick,300); }
+  }
+  tick();
+}
+
 /* ---------- GSAP scroll choreography ---------- */
 window.addEventListener('load',()=>{
-  if(typeof gsap==='undefined'){document.querySelectorAll('.reveal').forEach(e=>{e.style.opacity=1;e.style.transform='none';});return;}
+  if(typeof gsap==='undefined'){document.querySelectorAll('.reveal').forEach(e=>{e.style.opacity=1;e.style.transform='none';});startScreenplay();return;}
   gsap.registerPlugin(ScrollTrigger);
 
   /* progress bar */
@@ -791,6 +814,7 @@ window.addEventListener('load',()=>{
     if(jp){jp.style.height='auto';jp.style.padding='4rem 0';}
     if(ls){ls.style.position='relative';ls.style.height='220px';ls.setAttribute('preserveAspectRatio','xMidYMid meet');}
     document.querySelectorAll('.reveal').forEach(e=>{e.style.opacity=1;e.style.transform='none';});
+    startScreenplay();
     return;
   }
 
@@ -798,8 +822,7 @@ window.addEventListener('load',()=>{
   gsap.timeline({defaults:{ease:'power3.out'}})
     .from('#hero-kicker',{opacity:0,y:20,duration:.6})
     .from('.hero-word',{opacity:0,y:40,duration:.7,stagger:.06},'-=.2')
-    .from('#hero-sub',{opacity:0,y:20,duration:.6},'-=.3')
-    .from('#infinity-wrap',{opacity:0,scale:.92,duration:.8},'-=.3');
+    .from('#hero-sub',{opacity:0,y:20,duration:.6},'-=.3');
 
   /* ===== JOURNEY: camera travels the infinity loop ===== */
   (function(){
@@ -850,6 +873,9 @@ window.addEventListener('load',()=>{
     t.to(['#pconv-l','#pconv-r'],{strokeDashoffset:0,duration:.85,ease:'power1.inOut'})
      .to('#pconv-dot',{opacity:1,duration:.3,ease:'power2.out'},'-=.2');
   })();
+
+  /* live screenplay starts when in view */
+  ScrollTrigger.create({trigger:'#screenplay',start:'top 80%',once:true,onEnter:startScreenplay});
 
   /* parallax orbs */
   gsap.to('#orb1',{yPercent:18,xPercent:6,ease:'none',scrollTrigger:{trigger:document.body,start:'top top',end:'bottom bottom',scrub:1}});
