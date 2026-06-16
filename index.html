@@ -28,12 +28,13 @@
 }
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:hidden;max-width:100%;}
 body{
   background:var(--bg-black);
   color:var(--text);
   font-family:'Inter',sans-serif;
   overflow-x:hidden;
+  max-width:100%;
   margin:0;
 }
 .font-display{font-family:'Space Grotesk',sans-serif;}
@@ -134,8 +135,9 @@ body{
 .sp-caret{display:inline-block;width:6px;height:1.05em;background:var(--gold);margin-left:2px;vertical-align:-2px;animation:spblink 1s steps(1) infinite;}
 @keyframes spblink{50%{opacity:0}}
 
-/* film reel (scroll-rotated) */
-#filmReel{transform-origin:50% 50%;}
+/* film reel (always spinning, subtle) */
+#filmReel{transform-origin:50% 50%;animation:reelspin 9s linear infinite;}
+@keyframes reelspin{to{transform:rotate(360deg)}}
 
 /* pac-man chomp */
 .pacman{position:relative;width:40px;height:40px;flex:0 0 auto;}
@@ -155,7 +157,14 @@ body.no-scroll{overflow:hidden;}
 /* connection diagram */
 .cnode{transform:translate(-50%,-50%);}
 .conn{fill:none;stroke:url(#connGrad);stroke-width:2.4;stroke-dasharray:1;stroke-dashoffset:1;filter:url(#connGlow);}
-@media (prefers-reduced-motion:reduce){.conn{stroke-dashoffset:0;} #pconv-l,#pconv-r{stroke-dashoffset:0;} #infLink-l,#infLink-r{stroke-dashoffset:0;} #pconv-dot{opacity:1;} .stage{opacity:1;position:relative !important;margin:14px auto;}}
+@media (prefers-reduced-motion:reduce){.conn{stroke-dashoffset:0;} #pconv-l,#pconv-r{stroke-dashoffset:0;} #infLink-trunk,#infLink-l,#infLink-r{stroke-dashoffset:0;} #pconv-dot{opacity:1;} .stage{opacity:1;position:relative !important;margin:14px auto;}}
+
+/* small-screen safety */
+@media (max-width:480px){
+  #nav{padding-left:14px;padding-right:14px;}
+  .brand-logo-nav{width:120px;height:23px;}
+  .brand-logo-lg{width:min(300px,82vw);height:56px;}
+}
 
 /* node card */
 .node{
@@ -280,14 +289,13 @@ body.no-scroll{overflow:hidden;}
     </div>
     <div class="stage absolute inset-0 flex items-center justify-end px-6 sm:px-16 z-10" data-i="1">
       <div class="glass max-w-xs p-6 border-yellow-500/20">
-        <div class="flex items-center gap-3 mb-3">
+        <div class="mb-3">
           <svg id="filmReel" class="w-12 h-12 text-yellow-500" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
             <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="4"/>
             <circle cx="50" cy="50" r="11"/>
             <circle cx="50" cy="23" r="7.5"/><circle cx="73.4" cy="36.5" r="7.5"/><circle cx="73.4" cy="63.5" r="7.5"/>
             <circle cx="50" cy="77" r="7.5"/><circle cx="26.6" cy="63.5" r="7.5"/><circle cx="26.6" cy="36.5" r="7.5"/>
           </svg>
-          <span class="text-[9px] font-bold tracking-[0.2em] text-gray-500 uppercase leading-tight">Reel rolls<br>as you scroll</span>
         </div>
         <span class="font-display text-4xl font-bold text-gold-grad">01</span>
         <h3 class="font-display text-xl font-bold text-white mt-1">Film &amp; Series</h3>
@@ -334,17 +342,22 @@ body.no-scroll{overflow:hidden;}
 <!-- ===== THE SYSTEM — pinned pillars ===== -->
 <section id="system" class="relative">
 
-  <!-- clean pipeline continuing downward into the AI / Blockchain pillars -->
-  <div class="relative max-w-6xl mx-auto px-6 pt-10" aria-hidden="true">
-    <svg id="infLink" class="w-full hidden md:block" height="104" viewBox="0 0 1152 104" preserveAspectRatio="none">
+  <!-- connection continues from the Infinito centre (QIP area) down into the pillars -->
+  <div class="relative max-w-6xl mx-auto px-6 pt-2" aria-hidden="true">
+    <!-- mobile: simple vertical line from the centre down to the stacked pillars -->
+    <div class="md:hidden w-px h-14 bg-gradient-to-b from-yellow-500/70 via-yellow-500/40 to-transparent mx-auto"></div>
+    <!-- desktop: drops from centre, then opens into both pillars -->
+    <svg id="infLink" class="w-full hidden md:block" height="120" viewBox="0 0 1152 120" preserveAspectRatio="none">
       <defs>
         <linearGradient id="infLinkGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde047"/><stop offset="1" stop-color="#a16207"/></linearGradient>
         <filter id="infLinkGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
-      <path d="M576 0 V40 q0 10 -10 10 H298 q-10 0 -10 10 V104" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
-      <path d="M576 0 V40 q0 10 10 10 H854 q10 0 10 10 V104" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
-      <path id="infLink-l" d="M576 0 V40 q0 10 -10 10 H298 q-10 0 -10 10 V104" fill="none" stroke="url(#infLinkGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" filter="url(#infLinkGlow)"/>
-      <path id="infLink-r" d="M576 0 V40 q0 10 10 10 H854 q10 0 10 10 V104" fill="none" stroke="url(#infLinkGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" filter="url(#infLinkGlow)"/>
+      <path d="M576 0 V56" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+      <path d="M576 56 q0 10 -10 10 H298 q-10 0 -10 10 V120" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+      <path d="M576 56 q0 10 10 10 H854 q10 0 10 10 V120" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+      <path id="infLink-trunk" d="M576 0 V56" fill="none" stroke="url(#infLinkGrad)" stroke-width="3" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" filter="url(#infLinkGlow)"/>
+      <path id="infLink-l" d="M576 56 q0 10 -10 10 H298 q-10 0 -10 10 V120" fill="none" stroke="url(#infLinkGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" filter="url(#infLinkGlow)"/>
+      <path id="infLink-r" d="M576 56 q0 10 10 10 H854 q10 0 10 10 V120" fill="none" stroke="url(#infLinkGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" filter="url(#infLinkGlow)"/>
     </svg>
   </div>
 
@@ -416,7 +429,7 @@ body.no-scroll{overflow:hidden;}
           <!-- rings -->
           <div class="lg:col-span-6 flex flex-col items-center relative">
             <div class="absolute w-64 h-64 bg-yellow-500/10 rounded-full blur-[60px] -z-10"></div>
-            <div id="saturn" class="w-72 h-72 sm:w-[26rem] sm:h-[26rem] rounded-full border border-white/10 relative flex items-center justify-center">
+            <div id="saturn" class="w-[min(18rem,80vw)] h-[min(18rem,80vw)] sm:w-[26rem] sm:h-[26rem] rounded-full border border-white/10 relative flex items-center justify-center">
               <div class="ring-rotate absolute inset-0 rounded-full">
                 <div id="qring-3" class="absolute inset-[2%] rounded-full border border-dashed border-white/20 transition-all duration-500"><span class="absolute top-2 left-1/2 -translate-x-1/2 text-[8px] font-bold text-gray-500 uppercase tracking-widest">Ring 3 · Sales</span></div>
                 <div id="qring-2" class="absolute inset-[15%] rounded-full border border-white/15 transition-all duration-500"><span class="absolute top-2 left-1/2 -translate-x-1/2 text-[8px] font-bold text-gray-500 uppercase tracking-widest">Ring 2 · Market</span></div>
@@ -655,7 +668,7 @@ body.no-scroll{overflow:hidden;}
 <div id="investorsView" aria-hidden="true">
   <div class="sticky top-0 z-10 glass !rounded-none border-x-0 border-t-0 px-5 md:px-10 h-16 flex items-center justify-between">
     <button onclick="closeInvestors()" class="btn-outline px-4 py-2 rounded-full text-xs inline-flex items-center gap-2 uppercase tracking-wider"><i class="ph-bold ph-arrow-left"></i> Back</button>
-    <span class="brand-logo brand-logo-nav" role="img" aria-label="QANTICA"></span>
+    <span class="brand-logo brand-logo-nav hidden sm:inline-block" role="img" aria-label="QANTICA"></span>
     <button onclick="openModal('contactModal')" class="btn-gold px-5 py-2 rounded-full text-xs font-bold">Contact</button>
   </div>
 
@@ -865,9 +878,6 @@ window.addEventListener('load',()=>{
         .to('.stage[data-i="'+i+'"]',{opacity:0,y:-16,duration:.25,ease:'power2.in'},b);
     }
     stage(0,0,.55); stage(1,.95,1.55); stage(2,2.0,2.6); stage(3,3.05,3.65); stage(4,4.05,4.6);
-    if(document.getElementById('filmReel')){
-      gsap.to('#filmReel',{rotation:720,ease:'none',transformOrigin:'50% 50%',scrollTrigger:{trigger:'#journey',start:'top top',end:'bottom bottom',scrub:true}});
-    }
     const phase=document.getElementById('journeyPhase');
     ScrollTrigger.create({trigger:'#journey',start:'top top',end:'bottom bottom',onUpdate:s=>{
       const p=s.progress;
@@ -886,11 +896,12 @@ window.addEventListener('load',()=>{
       .from('.cnode-qss',{opacity:0,scale:.82,duration:.5,ease:'back.out(1.6)'},'-=.25');
   })();
 
-  /* ===== infinity -> AI / Blockchain bars ===== */
+  /* ===== QIP -> AI / Blockchain branch ===== */
   (function(){
     if(!document.getElementById('infLink'))return;
-    const t=gsap.timeline({scrollTrigger:{trigger:'#infLink',start:'top 92%'}});
-    t.to(['#infLink-l','#infLink-r'],{strokeDashoffset:0,duration:.85,ease:'power1.inOut'});
+    const t=gsap.timeline({scrollTrigger:{trigger:'#infLink',start:'top 90%'}});
+    t.to('#infLink-trunk',{strokeDashoffset:0,duration:.45,ease:'power2.out'})
+     .to(['#infLink-l','#infLink-r'],{strokeDashoffset:0,duration:.8,ease:'power2.inOut'},'-=.05');
   })();
 
   /* ===== pillars -> QSS beams ===== */
