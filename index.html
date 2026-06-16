@@ -134,10 +134,28 @@ body{
 .sp-caret{display:inline-block;width:6px;height:1.05em;background:var(--gold);margin-left:2px;vertical-align:-2px;animation:spblink 1s steps(1) infinite;}
 @keyframes spblink{50%{opacity:0}}
 
+/* film reel (scroll-rotated) */
+#filmReel{transform-origin:50% 50%;}
+
+/* pac-man chomp */
+.pacman{position:relative;width:40px;height:40px;flex:0 0 auto;}
+.pac-top,.pac-bot{position:absolute;left:0;width:40px;height:20px;background:var(--gold);}
+.pac-top{top:0;border-radius:40px 40px 0 0;transform-origin:50% 100%;animation:chompT .42s ease-in-out infinite alternate;}
+.pac-bot{bottom:0;border-radius:0 0 40px 40px;transform-origin:50% 0%;animation:chompB .42s ease-in-out infinite alternate;}
+.pac-eye{position:absolute;top:5px;right:11px;width:4px;height:4px;border-radius:50%;background:#0a0a0a;}
+@keyframes chompT{0%{transform:rotate(-32deg)}100%{transform:rotate(0)}}
+@keyframes chompB{0%{transform:rotate(32deg)}100%{transform:rotate(0)}}
+
+/* investors view (subpage overlay) */
+#investorsView{position:fixed;inset:0;z-index:60;overflow-y:auto;background:var(--bg-black);
+  opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .4s ease,transform .4s ease,visibility .4s;}
+#investorsView.open{opacity:1;visibility:visible;transform:none;}
+body.no-scroll{overflow:hidden;}
+
 /* connection diagram */
 .cnode{transform:translate(-50%,-50%);}
 .conn{fill:none;stroke:url(#connGrad);stroke-width:2.4;stroke-dasharray:1;stroke-dashoffset:1;filter:url(#connGlow);}
-@media (prefers-reduced-motion:reduce){.conn{stroke-dashoffset:0;} #pconv-l,#pconv-r{stroke-dashoffset:0;} #pconv-dot{opacity:1;} .stage{opacity:1;position:relative !important;margin:14px auto;}}
+@media (prefers-reduced-motion:reduce){.conn{stroke-dashoffset:0;} #pconv-l,#pconv-r{stroke-dashoffset:0;} #infLink-l,#infLink-r{stroke-dashoffset:0;} #pconv-dot{opacity:1;} .stage{opacity:1;position:relative !important;margin:14px auto;}}
 
 /* node card */
 .node{
@@ -194,11 +212,11 @@ body{
     <a href="#system" class="nav-link" data-sec="system">THE SYSTEM</a>
     <a href="#protection" class="nav-link" data-sec="protection">GUARANTEE</a>
     <a href="#market" class="nav-link" data-sec="market">MARKETPLACE</a>
-    <a href="#investors" class="nav-link" data-sec="investors">INVESTORS</a>
+    <a href="#" onclick="openInvestors();return false;" class="nav-link">INVESTORS</a>
   </div>
   <div class="flex items-center gap-2 md:gap-3">
     <button onclick="openModal('contactModal')" class="btn-gold px-5 md:px-7 py-2.5 rounded-full text-xs font-bold">Contact</button>
-    <button onclick="openModal('accessModal')" class="btn-ghost px-4 md:px-5 py-2.5 rounded-full text-xs font-bold">Data Room</button>
+    <button onclick="openInvestors()" class="btn-ghost px-4 md:px-5 py-2.5 rounded-full text-xs font-bold">Data Room</button>
   </div>
 </nav>
 
@@ -207,7 +225,7 @@ body{
 <!-- ===== HERO ===== -->
 <section id="hero" class="relative min-h-[80vh] flex flex-col items-center justify-center text-center px-6 pt-32 pb-12">
   <div class="max-w-5xl mx-auto space-y-9 relative z-10">
-    <span id="hero-kicker" class="kicker text-yellow-500 block reveal">The Infrastructure Layer</span>
+    <span id="hero-kicker" class="kicker text-yellow-500 block">The Infrastructure Layer</span>
     <h1 class="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.04] text-white">
       <span class="hero-word inline-block">The</span>
       <span class="hero-word inline-block">infrastructure</span>
@@ -216,15 +234,14 @@ body{
       <span class="hero-word inline-block text-gold-grad">entertainment</span>
       <span class="hero-word inline-block text-gold-grad">IP.</span>
     </h1>
-    <p id="hero-sub" class="text-gray-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed reveal">
-      One protocol from screenplay to signed deal — validating, protecting and packaging stories
-      so studios, platforms and game publishers can acquire with confidence.
+    <p id="hero-sub" class="text-gray-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+      One protocol from screenplay to market-ready IP.
     </p>
     <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto pt-2 reveal">
       <button onclick="openModal('deckModal')" class="w-full sm:w-1/2 h-14 rounded-xl btn-gold flex items-center justify-center gap-2 uppercase text-xs tracking-wider">
         <i class="ph-bold ph-file-arrow-down"></i> View deck
       </button>
-      <button onclick="openModal('accessModal')" class="w-full sm:w-1/2 h-14 rounded-xl font-bold glass border-white/15 hover:border-yellow-500/50 text-white transition flex items-center justify-center gap-2 uppercase text-xs tracking-wider">
+      <button onclick="openInvestors()" class="w-full sm:w-1/2 h-14 rounded-xl font-bold glass border-white/15 hover:border-yellow-500/50 text-white transition flex items-center justify-center gap-2 uppercase text-xs tracking-wider">
         <i class="ph-bold ph-lock-key"></i> Data room
       </button>
     </div>
@@ -263,6 +280,15 @@ body{
     </div>
     <div class="stage absolute inset-0 flex items-center justify-end px-6 sm:px-16 z-10" data-i="1">
       <div class="glass max-w-xs p-6 border-yellow-500/20">
+        <div class="flex items-center gap-3 mb-3">
+          <svg id="filmReel" class="w-12 h-12 text-yellow-500" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+            <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="4"/>
+            <circle cx="50" cy="50" r="11"/>
+            <circle cx="50" cy="23" r="7.5"/><circle cx="73.4" cy="36.5" r="7.5"/><circle cx="73.4" cy="63.5" r="7.5"/>
+            <circle cx="50" cy="77" r="7.5"/><circle cx="26.6" cy="63.5" r="7.5"/><circle cx="26.6" cy="36.5" r="7.5"/>
+          </svg>
+          <span class="text-[9px] font-bold tracking-[0.2em] text-gray-500 uppercase leading-tight">Reel rolls<br>as you scroll</span>
+        </div>
         <span class="font-display text-4xl font-bold text-gold-grad">01</span>
         <h3 class="font-display text-xl font-bold text-white mt-1">Film &amp; Series</h3>
         <p class="text-xs text-gray-400 mt-2 leading-relaxed">Original screenplays enter the pipeline — validated, scored and cryptographically protected.</p>
@@ -271,14 +297,25 @@ body{
     <div class="stage absolute inset-0 flex items-end justify-center px-6 pb-20 z-10" data-i="2">
       <div class="glass max-w-md p-6 text-center border-yellow-500/30">
         <span class="font-display text-4xl font-bold text-gold-grad">02</span>
-        <h3 class="font-display text-xl font-bold text-white mt-1">QIP® Core</h3>
+        <h3 class="font-display text-xl font-bold text-white mt-1">QIP® Qantica Intellectual Property</h3>
         <p class="text-xs text-gray-400 mt-2 leading-relaxed">Where every story is scored, secured and packaged — the standard unit of entertainment IP.</p>
       </div>
     </div>
     <div class="stage absolute inset-0 flex items-center justify-start px-6 sm:px-16 z-10" data-i="3">
       <div class="glass max-w-xs p-6 border-yellow-500/20">
-        <span class="font-display text-4xl font-bold text-gold-grad">03</span>
-        <h3 class="font-display text-xl font-bold text-white mt-1">Gaming</h3>
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-display text-4xl font-bold text-gold-grad">03</span>
+          <svg class="w-9 h-9 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="6" r="2.6" fill="currentColor" fill-opacity=".2"/>
+            <path d="M12 8.6v6.2"/>
+            <ellipse cx="12" cy="20" rx="8" ry="2.4" fill="currentColor" fill-opacity=".12"/>
+            <path d="M5.5 19.6c.6-2.5 3.2-4.1 6.5-4.1s5.9 1.6 6.5 4.1"/>
+          </svg>
+        </div>
+        <div class="flex items-center gap-3 mt-1">
+          <div class="pacman" aria-hidden="true"><div class="pac-top"><span class="pac-eye"></span></div><div class="pac-bot"></div></div>
+          <h3 class="font-display text-xl font-bold text-white">Gaming</h3>
+        </div>
         <p class="text-xs text-gray-400 mt-2 leading-relaxed">The same protected IP extends into interactive worlds — one asset, deployed across media.</p>
       </div>
     </div>
@@ -292,88 +329,27 @@ body{
   </div>
 </section>
 
-<!-- ===== OPPORTUNITY / STATS ===== -->
-<section id="opportunity" class="max-w-6xl mx-auto px-6 py-28">
-  <div class="text-center max-w-2xl mx-auto mb-16 reveal">
-    <span class="kicker text-yellow-500 block mb-3">The Opportunity</span>
-    <h2 class="font-display text-3xl md:text-5xl font-bold text-white tracking-tight">IP is the industry's most valuable — and least standardized — asset.</h2>
-    <div class="divider"></div>
-  </div>
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="glass glass-hov p-7 text-center reveal">
-      <div class="counter font-display text-4xl md:text-5xl font-bold text-gold-grad tab-num" data-target="2.8" data-prefix="$" data-suffix="T" data-dec="1">$0T</div>
-      <p class="text-xs text-gray-400 mt-3 leading-snug">Global media &amp; entertainment market by 2028</p>
-    </div>
-    <div class="glass glass-hov p-7 text-center reveal">
-      <div class="counter font-display text-4xl md:text-5xl font-bold text-gold-grad tab-num" data-target="70" data-suffix="%+">0%</div>
-      <p class="text-xs text-gray-400 mt-3 leading-snug">Of greenlit projects originate from existing IP</p>
-    </div>
-    <div class="glass glass-hov p-7 text-center reveal">
-      <div class="counter font-display text-4xl md:text-5xl font-bold text-gold-grad tab-num" data-target="24" data-suffix="mo">0mo</div>
-      <p class="text-xs text-gray-400 mt-3 leading-snug">Typical script-to-deal validation cycle today</p>
-    </div>
-    <div class="glass glass-hov p-7 text-center reveal">
-      <div class="counter font-display text-4xl md:text-5xl font-bold text-gold-grad tab-num" data-target="1" data-suffix="">0</div>
-      <p class="text-xs text-gray-400 mt-3 leading-snug">Unified protocol from page to marketplace</p>
-    </div>
-  </div>
-  <p class="text-center text-[11px] text-gray-600 mt-6 reveal">Market figures are industry estimates; platform metrics shown are illustrative placeholders.</p>
-</section>
+
 
 <!-- ===== THE SYSTEM — pinned pillars ===== -->
 <section id="system" class="relative">
-  <div class="text-center max-w-2xl mx-auto px-6 pt-16 pb-2 reveal">
-    <span class="kicker text-yellow-500 block mb-3">Deployment Core</span>
-    <h2 class="font-display text-3xl md:text-5xl font-bold text-white tracking-tight">Everything connects.</h2>
-    <div class="divider"></div>
-    <p class="text-gray-400 text-sm mt-4 max-w-xl mx-auto">The QIP® core feeds two pillars — intelligence and rights — that converge into QSS®, the engine that delivers to buyers.</p>
-  </div>
 
-  <!-- connection diagram -->
-  <div class="max-w-3xl mx-auto px-6 pt-6 pb-2">
-    <div id="connect" class="relative w-full mx-auto" style="aspect-ratio:600/470;max-width:620px">
-      <svg class="absolute inset-0 w-full h-full" viewBox="0 0 600 470" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="connGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde047"/><stop offset="1" stop-color="#a16207"/></linearGradient>
-          <filter id="connGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        </defs>
-        <path id="cl-ai" class="conn" pathLength="1" d="M300 96 C300 152 150 150 150 196"/>
-        <path id="cl-bc" class="conn" pathLength="1" d="M300 96 C300 152 450 150 450 196"/>
-        <path id="cl-aq" class="conn" pathLength="1" d="M150 284 C150 342 300 330 300 372"/>
-        <path id="cl-bq" class="conn" pathLength="1" d="M450 284 C450 342 300 330 300 372"/>
-      </svg>
-
-      <div class="cnode cnode-qip absolute" style="left:50%;top:11%">
-        <div class="glass !rounded-2xl px-5 py-3 border-yellow-500/40 flex items-center gap-2 shadow-[0_0_30px_rgba(250,204,21,.2)]">
-          <svg width="34" height="18" viewBox="0 0 60 30"><path d="M30 15C42 3 60 3 60 15 60 27 42 27 30 15 18 3 0 3 0 15 0 27 18 27 30 15Z" fill="none" stroke="#facc15" stroke-width="2.4"/></svg>
-          <span class="font-display text-lg font-bold text-yellow-500">QIP®</span>
-        </div>
-      </div>
-      <div class="cnode cnode-ai absolute" style="left:25%;top:50%">
-        <div class="glass !rounded-2xl px-4 py-3 border-white/10 text-center w-32">
-          <i class="ph-bold ph-cpu text-2xl text-yellow-500"></i>
-          <p class="font-display text-sm font-bold text-white mt-1">AI</p>
-          <p class="text-[9px] text-gray-500 uppercase tracking-widest">Intelligence</p>
-        </div>
-      </div>
-      <div class="cnode cnode-bc absolute" style="left:75%;top:50%">
-        <div class="glass !rounded-2xl px-4 py-3 border-white/10 text-center w-32">
-          <i class="ph-bold ph-link-simple text-2xl text-yellow-500"></i>
-          <p class="font-display text-sm font-bold text-white mt-1">Blockchain</p>
-          <p class="text-[9px] text-gray-500 uppercase tracking-widest">Rights</p>
-        </div>
-      </div>
-      <div class="cnode cnode-qss absolute" style="left:50%;top:85%">
-        <div class="glass !rounded-2xl px-5 py-3 border-yellow-500/40 text-center shadow-[0_0_30px_rgba(250,204,21,.2)]">
-          <span class="font-display text-lg font-bold text-yellow-500">QSS®</span>
-          <p class="text-[9px] text-gray-500 uppercase tracking-widest">Saturn Engine</p>
-        </div>
-      </div>
-    </div>
+  <!-- clean pipeline continuing downward into the AI / Blockchain pillars -->
+  <div class="relative max-w-6xl mx-auto px-6 pt-10" aria-hidden="true">
+    <svg id="infLink" class="w-full hidden md:block" height="104" viewBox="0 0 1152 104" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="infLinkGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde047"/><stop offset="1" stop-color="#a16207"/></linearGradient>
+        <filter id="infLinkGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <path d="M576 0 V40 q0 10 -10 10 H298 q-10 0 -10 10 V104" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+      <path d="M576 0 V40 q0 10 10 10 H854 q10 0 10 10 V104" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+      <path id="infLink-l" d="M576 0 V40 q0 10 -10 10 H298 q-10 0 -10 10 V104" fill="none" stroke="url(#infLinkGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" filter="url(#infLinkGlow)"/>
+      <path id="infLink-r" d="M576 0 V40 q0 10 10 10 H854 q10 0 10 10 V104" fill="none" stroke="url(#infLinkGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" filter="url(#infLinkGlow)"/>
+    </svg>
   </div>
 
   <!-- pillars -->
-  <div id="pillarScene" class="relative py-6">
+  <div id="pillarScene" class="relative pt-2 pb-6">
     <div class="max-w-6xl mx-auto px-6 w-full">
       <div class="grid md:grid-cols-2 gap-8 relative">
         <!-- AI -->
@@ -432,7 +408,7 @@ body{
       <div class="max-w-6xl mx-auto px-6 w-full">
         <div class="text-center max-w-2xl mx-auto mb-10">
           <span class="kicker text-yellow-500 block mb-2">System Integration</span>
-          <h2 class="font-display text-3xl md:text-5xl font-bold text-white tracking-tight">QSS® Saturn Engine</h2>
+          <h2 class="font-display text-3xl md:text-5xl font-bold text-white tracking-tight">QSS® Qantica Smart System</h2>
           <p class="text-gray-400 text-sm mt-3 max-w-lg mx-auto">Both pipelines converge here. Three concentric rings package every asset for direct acquisition.</p>
         </div>
 
@@ -518,6 +494,34 @@ body{
   </div>
 </section>
 
+
+<!-- ===== THE OPPORTUNITY (repositioned: after Original Screenplay Audit, before Marketplace) ===== -->
+<section id="opportunity" class="max-w-6xl mx-auto px-6 py-28">
+  <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+    <span class="kicker text-yellow-500 block mb-3">The Opportunity</span>
+    <h2 class="font-display text-3xl md:text-5xl font-bold text-white tracking-tight">IP is the industry's most valuable — and least standardized — asset.</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="glass glass-hov p-7 text-center reveal">
+      <div class="counter font-display text-4xl md:text-5xl font-bold text-gold-grad tab-num" data-target="2.8" data-prefix="$" data-suffix="T" data-dec="1">$0T</div>
+      <p class="text-xs text-gray-400 mt-3 leading-snug">Global media &amp; entertainment market by 2028</p>
+    </div>
+    <div class="glass glass-hov p-7 text-center reveal">
+      <div class="counter font-display text-4xl md:text-5xl font-bold text-gold-grad tab-num" data-target="70" data-suffix="%+">0%</div>
+      <p class="text-xs text-gray-400 mt-3 leading-snug">Of greenlit projects originate from existing IP</p>
+    </div>
+    <div class="glass glass-hov p-7 text-center reveal">
+      <div class="counter font-display text-4xl md:text-5xl font-bold text-gold-grad tab-num" data-target="24" data-suffix="mo">0mo</div>
+      <p class="text-xs text-gray-400 mt-3 leading-snug">Typical script-to-deal validation cycle today</p>
+    </div>
+    <div class="glass glass-hov p-7 text-center reveal">
+      <div class="counter font-display text-4xl md:text-5xl font-bold text-gold-grad tab-num" data-target="1" data-suffix="">0</div>
+      <p class="text-xs text-gray-400 mt-3 leading-snug">Unified protocol from page to marketplace</p>
+    </div>
+  </div>
+  <p class="text-center text-[11px] text-gray-600 mt-6 reveal">Market figures are industry estimates; platform metrics shown are illustrative placeholders.</p>
+</section>
 <!-- ===== MARKETPLACE — horizontal scroll ===== -->
 <section id="market" class="relative">
   <div class="text-center max-w-2xl mx-auto px-6 pt-10 pb-6 reveal">
@@ -568,40 +572,6 @@ body{
   </div>
 </section>
 
-<!-- ===== INVESTORS ===== -->
-<section id="investors" class="max-w-5xl mx-auto px-6 py-28 reveal">
-  <div class="text-center space-y-3 mb-12">
-    <span class="kicker text-yellow-500 block">Growth Stage</span>
-    <h2 class="font-display text-4xl md:text-6xl font-bold tracking-tight text-white">Investors</h2>
-    <div class="divider"></div>
-    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-xs font-bold"><span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Strategic private round open</span>
-  </div>
-  <div class="grid lg:grid-cols-2 gap-8">
-    <div class="glass glass-hov p-8 flex flex-col justify-between bg-black/40">
-      <div>
-        <h3 class="font-display text-xl font-bold mb-4 flex items-center gap-2 text-white"><i class="ph ph-hand-coins text-yellow-500"></i> Investment thesis</h3>
-        <p class="text-gray-400 leading-relaxed text-sm">Acquiring high-potential entertainment IP is capital-heavy and slow. Qantica is the validation layer that lowers early-stage risk and increases transaction velocity.</p>
-      </div>
-      <div class="my-6 p-4 bg-white/5 rounded-xl border-l-2 border-yellow-500 text-sm font-semibold text-white">Standardize, verify and distribute creative IP before heavy production budgets are committed.</div>
-      <div class="grid grid-cols-2 gap-4">
-        <div class="p-3 bg-black/40 border border-white/5 rounded-lg text-center"><span class="text-xs text-gray-500 block">Current stage</span><span class="text-sm font-bold text-white mt-1 block">Series A</span></div>
-        <div class="p-3 bg-black/40 border border-white/5 rounded-lg text-center"><span class="text-xs text-gray-500 block">Model</span><span class="text-sm font-bold text-white mt-1 block">SaaS + Licensing</span></div>
-      </div>
-    </div>
-    <div class="glass glass-hov p-8 flex flex-col justify-between bg-black/40">
-      <div>
-        <h3 class="font-display text-xl font-bold mb-6 text-white">Why Qantica</h3>
-        <div class="space-y-4">
-          <div class="flex items-start gap-3"><i class="ph-bold ph-check text-yellow-500 mt-1"></i><div><h4 class="font-bold text-white text-sm">Validated IPI index</h4><p class="text-xs text-gray-400">Objective scoring that standardizes the value of a screenplay.</p></div></div>
-          <div class="flex items-start gap-3"><i class="ph-bold ph-check text-yellow-500 mt-1"></i><div><h4 class="font-bold text-white text-sm">Patent-backed safeguards</h4><p class="text-xs text-gray-400">Cryptographic copyright frameworks that prevent illicit model training.</p></div></div>
-          <div class="flex items-start gap-3"><i class="ph-bold ph-check text-yellow-500 mt-1"></i><div><h4 class="font-bold text-white text-sm">Compounding network effects</h4><p class="text-xs text-gray-400">Each validated dossier grows more valuable as buyers join the pool.</p></div></div>
-        </div>
-      </div>
-      <button onclick="openModal('accessModal')" class="btn-gold w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest mt-6">Access data room</button>
-    </div>
-  </div>
-</section>
-
 <!-- ===== CLOSING ===== -->
 <section class="relative min-h-screen flex flex-col justify-center items-center py-24 border-t border-white/5 overflow-hidden">
   <canvas id="goldSphere" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
@@ -610,7 +580,7 @@ body{
     <h2 class="font-display text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.05]">The future of <span class="text-gold-grad">entertainment IP</span> starts here.</h2>
     <p class="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">Empowering writers, standardizing curation, and delivering premium transmedia packages to global buyers.</p>
     <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
-      <button onclick="openModal('accessModal')" class="w-full sm:w-auto btn-gold px-10 py-5 rounded-xl font-bold inline-flex items-center justify-center gap-3 text-sm tracking-widest uppercase">Access data room <i class="ph-bold ph-arrow-right"></i></button>
+      <button onclick="openInvestors()" class="w-full sm:w-auto btn-gold px-10 py-5 rounded-xl font-bold inline-flex items-center justify-center gap-3 text-sm tracking-widest uppercase">Access data room <i class="ph-bold ph-arrow-right"></i></button>
       <button onclick="openModal('contactModal')" class="w-full sm:w-auto btn-outline px-10 py-5 rounded-xl inline-flex items-center justify-center gap-3 text-sm tracking-widest uppercase">Get in touch <i class="ph-bold ph-envelope"></i></button>
     </div>
     <div class="pt-10 flex justify-center"><span class="brand-logo brand-logo-lg" role="img" aria-label="QANTICA"></span></div>
@@ -681,6 +651,51 @@ body{
   </div>
 </div>
 
+<!-- ===== INVESTORS VIEW (subpage) ===== -->
+<div id="investorsView" aria-hidden="true">
+  <div class="sticky top-0 z-10 glass !rounded-none border-x-0 border-t-0 px-5 md:px-10 h-16 flex items-center justify-between">
+    <button onclick="closeInvestors()" class="btn-outline px-4 py-2 rounded-full text-xs inline-flex items-center gap-2 uppercase tracking-wider"><i class="ph-bold ph-arrow-left"></i> Back</button>
+    <span class="brand-logo brand-logo-nav" role="img" aria-label="QANTICA"></span>
+    <button onclick="openModal('contactModal')" class="btn-gold px-5 py-2 rounded-full text-xs font-bold">Contact</button>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-6 py-16 relative z-10">
+    <div class="text-center space-y-3 mb-12">
+      <span class="kicker text-yellow-500 block">Growth Stage</span>
+      <h1 class="font-display text-4xl md:text-6xl font-bold tracking-tight text-white">Investors</h1>
+      <div class="divider" style="width:90px"></div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-xs font-bold"><span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Strategic private round open</span>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-8">
+      <div class="glass glass-hov p-8 flex flex-col justify-between bg-black/40">
+        <div>
+          <h3 class="font-display text-xl font-bold mb-4 flex items-center gap-2 text-white"><i class="ph ph-hand-coins text-yellow-500"></i> Investment thesis</h3>
+          <p class="text-gray-400 leading-relaxed text-sm">Acquiring high-potential entertainment IP is capital-heavy and slow. Qantica is the validation layer that lowers early-stage risk and increases transaction velocity.</p>
+        </div>
+        <div class="my-6 p-4 bg-white/5 rounded-xl border-l-2 border-yellow-500 text-sm font-semibold text-white">Standardize, verify and distribute creative IP before heavy production budgets are committed.</div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-3 bg-black/40 border border-white/5 rounded-lg text-center"><span class="text-xs text-gray-500 block">Current stage</span><span class="text-sm font-bold text-white mt-1 block">Series A</span></div>
+          <div class="p-3 bg-black/40 border border-white/5 rounded-lg text-center"><span class="text-xs text-gray-500 block">Model</span><span class="text-sm font-bold text-white mt-1 block">SaaS + Licensing</span></div>
+        </div>
+      </div>
+      <div class="glass glass-hov p-8 flex flex-col justify-between bg-black/40">
+        <div>
+          <h3 class="font-display text-xl font-bold mb-6 text-white">Why Qantica</h3>
+          <div class="space-y-4">
+            <div class="flex items-start gap-3"><i class="ph-bold ph-check text-yellow-500 mt-1"></i><div><h4 class="font-bold text-white text-sm">Validated IPI index</h4><p class="text-xs text-gray-400">Objective scoring that standardizes the value of a screenplay.</p></div></div>
+            <div class="flex items-start gap-3"><i class="ph-bold ph-check text-yellow-500 mt-1"></i><div><h4 class="font-bold text-white text-sm">Patent-backed safeguards</h4><p class="text-xs text-gray-400">Cryptographic copyright frameworks that prevent illicit model training.</p></div></div>
+            <div class="flex items-start gap-3"><i class="ph-bold ph-check text-yellow-500 mt-1"></i><div><h4 class="font-bold text-white text-sm">Compounding network effects</h4><p class="text-xs text-gray-400">Each validated dossier grows more valuable as buyers join the pool.</p></div></div>
+          </div>
+        </div>
+        <button onclick="openModal('accessModal')" class="btn-gold w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest mt-6">Access data room</button>
+      </div>
+    </div>
+    <div class="text-center mt-12">
+      <button onclick="closeInvestors()" class="btn-outline px-8 py-4 rounded-xl text-xs uppercase tracking-widest inline-flex items-center gap-2"><i class="ph-bold ph-arrow-left"></i> Back to homepage</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="fixed bottom-6 right-6 glass border-yellow-500/40 p-4 max-w-sm z-[80] hidden bg-[#0a0a0c]">
   <div class="flex gap-3 items-center">
     <div class="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></div>
@@ -694,8 +709,10 @@ const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------- modals + toast ---------- */
 function openModal(id){const m=document.getElementById(id);m.classList.remove('hidden');m.classList.add('flex');}
 function closeModal(id){const m=document.getElementById(id);m.classList.add('hidden');m.classList.remove('flex');}
+function openInvestors(){const v=document.getElementById('investorsView');if(!v)return;v.classList.add('open');document.body.classList.add('no-scroll');v.scrollTop=0;if(window.ScrollTrigger)ScrollTrigger.refresh();}
+function closeInvestors(){const v=document.getElementById('investorsView');if(!v)return;v.classList.remove('open');document.body.classList.remove('no-scroll');}
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal').forEach(m=>closeModal(m.id));});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal').forEach(m=>closeModal(m.id));closeInvestors();}});
 let toastTimer;
 function toast(t,b){const c=document.getElementById('toast');document.getElementById('toastTitle').innerText=t;document.getElementById('toastBody').innerText=b;c.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>c.classList.add('hidden'),3800);}
 
@@ -848,10 +865,13 @@ window.addEventListener('load',()=>{
         .to('.stage[data-i="'+i+'"]',{opacity:0,y:-16,duration:.25,ease:'power2.in'},b);
     }
     stage(0,0,.55); stage(1,.95,1.55); stage(2,2.0,2.6); stage(3,3.05,3.65); stage(4,4.05,4.6);
+    if(document.getElementById('filmReel')){
+      gsap.to('#filmReel',{rotation:720,ease:'none',transformOrigin:'50% 50%',scrollTrigger:{trigger:'#journey',start:'top top',end:'bottom bottom',scrub:true}});
+    }
     const phase=document.getElementById('journeyPhase');
     ScrollTrigger.create({trigger:'#journey',start:'top top',end:'bottom bottom',onUpdate:s=>{
       const p=s.progress;
-      phase.textContent=p<.16?'Intro':p<.40?'01 · Film':p<.62?'02 · QIP® Core':p<.85?'03 · Games':'The loop';
+      phase.textContent=p<.16?'Intro':p<.40?'01 · Film':p<.62?'02 · QIP®':p<.85?'03 · Games':'The loop';
     }});
   })();
 
@@ -866,7 +886,14 @@ window.addEventListener('load',()=>{
       .from('.cnode-qss',{opacity:0,scale:.82,duration:.5,ease:'back.out(1.6)'},'-=.25');
   })();
 
-  /* ===== pillars -> QSS Saturn beams ===== */
+  /* ===== infinity -> AI / Blockchain bars ===== */
+  (function(){
+    if(!document.getElementById('infLink'))return;
+    const t=gsap.timeline({scrollTrigger:{trigger:'#infLink',start:'top 92%'}});
+    t.to(['#infLink-l','#infLink-r'],{strokeDashoffset:0,duration:.85,ease:'power1.inOut'});
+  })();
+
+  /* ===== pillars -> QSS beams ===== */
   (function(){
     if(!document.getElementById('pconv'))return;
     const t=gsap.timeline({scrollTrigger:{trigger:'#pconv',start:'top 88%'}});
