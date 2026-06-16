@@ -166,6 +166,14 @@ body.no-scroll{overflow:hidden;}
   .brand-logo-lg{width:min(300px,82vw);height:56px;}
 }
 
+/* QSS: not pinned below desktop — let title, rings and all 3 cards show fully */
+@media (max-width:1023px){
+  #qssScene{height:auto !important;}
+  #qssPin{height:auto !important;min-height:0 !important;overflow:visible !important;padding:3rem 0;}
+  #ring-info-1,#ring-info-2,#ring-info-3{opacity:1 !important;}
+  #ring-info-2,#ring-info-3{transform:none !important;}
+}
+
 /* node card */
 .node{
   background:rgba(9,9,11,.9);border:2px solid rgba(255,255,255,.08);border-radius:50%;
@@ -940,14 +948,18 @@ window.addEventListener('load',()=>{
     }});
   });
 
-  /* QSS pin: rotate rings + cycle active ring with scroll */
-  const qt=gsap.timeline({scrollTrigger:{trigger:'#qssScene',start:'top top',end:'bottom bottom',scrub:.6,pin:'#qssPin'}});
-  qt.to('#saturn .ring-rotate',{rotate:300,ease:'none'},0);
-  function setRing(n){for(let i=1;i<=3;i++){const c=document.getElementById('ring-info-'+i);c.classList.toggle('on',i===n);c.classList.toggle('dim',i!==n);
-    const r=document.getElementById('qring-'+i);[1,2,3].forEach(k=>{const rr=document.getElementById('qring-'+k);rr.style.borderColor=k===n?'rgba(250,204,21,.7)':'';rr.style.boxShadow=k===n?'0 0 24px rgba(250,204,21,.35)':'';});}}
-  ScrollTrigger.create({trigger:'#qssScene',start:'top top',end:'bottom bottom',onUpdate:s=>{
-    const p=s.progress;setRing(p<.34?1:p<.67?2:3);
-  }});
+  /* QSS: pin + scroll-driven rings on desktop only (mobile shows it stacked & fully visible) */
+  function setRing(n){for(let i=1;i<=3;i++){const c=document.getElementById('ring-info-'+i);if(!c)continue;c.classList.toggle('on',i===n);c.classList.toggle('dim',i!==n);
+    [1,2,3].forEach(k=>{const rr=document.getElementById('qring-'+k);if(rr){rr.style.borderColor=k===n?'rgba(250,204,21,.7)':'';rr.style.boxShadow=k===n?'0 0 24px rgba(250,204,21,.35)':'';}});}}
+  ScrollTrigger.matchMedia({
+    '(min-width:1024px)':function(){
+      const qt=gsap.timeline({scrollTrigger:{trigger:'#qssScene',start:'top top',end:'bottom bottom',scrub:.6,pin:'#qssPin'}});
+      qt.to('#saturn .ring-rotate',{rotate:300,ease:'none'},0);
+      ScrollTrigger.create({trigger:'#qssScene',start:'top top',end:'bottom bottom',onUpdate:s=>{
+        const p=s.progress;setRing(p<.34?1:p<.67?2:3);
+      }});
+    }
+  });
 
   /* horizontal marketplace */
   const track=document.getElementById('hTrack');
