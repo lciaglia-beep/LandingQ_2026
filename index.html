@@ -72,6 +72,9 @@ body{
 .nav-link.is-active{color:#fff;}
 .nav-link.is-active::after,.nav-link:hover::after{width:100%;}
 
+/* offset anchored sections below the fixed header */
+#hero,#system,#protection,#opportunity,#market{scroll-margin-top:92px;}
+
 /* progress bar */
 #progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:60;
   background:linear-gradient(90deg,var(--gold-deep),var(--gold),var(--gold-soft));
@@ -225,9 +228,9 @@ body.no-scroll{overflow:hidden;}
   </a>
   <div class="hidden lg:flex gap-9 text-xs font-semibold tracking-wider text-gray-400">
     <a href="#hero" class="nav-link" data-sec="hero">HOME</a>
-    <a href="#opportunity" class="nav-link" data-sec="opportunity">OPPORTUNITY</a>
     <a href="#system" class="nav-link" data-sec="system">THE SYSTEM</a>
     <a href="#protection" class="nav-link" data-sec="protection">GUARANTEE</a>
+    <a href="#opportunity" class="nav-link" data-sec="opportunity">OPPORTUNITY</a>
     <a href="#market" class="nav-link" data-sec="market">MARKETPLACE</a>
     <a href="#" onclick="openInvestors();return false;" class="nav-link">INVESTORS</a>
   </div>
@@ -734,6 +737,29 @@ function openInvestors(){const v=document.getElementById('investorsView');if(!v)
 function closeInvestors(){const v=document.getElementById('investorsView');if(!v)return;v.classList.remove('open');document.body.classList.remove('no-scroll');}
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal').forEach(m=>closeModal(m.id));closeInvestors();}});
+
+/* ---------- order-correct nav scroll spy ---------- */
+(function(){
+  const ids=['hero','system','protection','opportunity','market'];
+  const nav=document.getElementById('nav');
+  const links=Array.prototype.slice.call(document.querySelectorAll('.nav-link[data-sec]'));
+  if(!links.length)return;
+  let ticking=false;
+  function update(){
+    ticking=false;
+    const offset=(nav?nav.offsetHeight:72)+14;
+    let current=ids[0];
+    for(const id of ids){
+      const el=document.getElementById(id);
+      if(el && el.getBoundingClientRect().top<=offset) current=id;
+    }
+    links.forEach(l=>l.classList.toggle('is-active',l.dataset.sec===current));
+  }
+  window.addEventListener('scroll',function(){ if(!ticking){ticking=true;requestAnimationFrame(update);} },{passive:true});
+  window.addEventListener('resize',update);
+  window.addEventListener('load',update);
+  update();
+})();
 let toastTimer;
 function toast(t,b){const c=document.getElementById('toast');document.getElementById('toastTitle').innerText=t;document.getElementById('toastBody').innerText=b;c.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>c.classList.add('hidden'),3800);}
 
@@ -838,12 +864,7 @@ window.addEventListener('load',()=>{
     if(s.progress>0||window.scrollY>60){n.style.height='62px';n.style.background='rgba(5,5,5,.85)';}else{n.style.height='80px';n.style.background='';}
   }});
 
-  /* active nav link */
-  document.querySelectorAll('main section[id]').forEach(sec=>{
-    ScrollTrigger.create({trigger:sec,start:'top 45%',end:'bottom 45%',onToggle:self=>{
-      if(self.isActive){document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('is-active',l.dataset.sec===sec.id));}
-    }});
-  });
+  /* active nav link handled by the order-correct scroll spy below (outside this block) */
 
   if(RM){
     document.getElementById('hero').style.height='auto';
